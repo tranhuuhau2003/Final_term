@@ -1,0 +1,1 @@
+Tui làm đăng nhập,đăng kí ,đăng xuất,giỏ hàng( bao gồm thanh toán),tài khoản của tôi,tìm kiếm món ăn ở trang chủ,chức năng khách hàng của admin
