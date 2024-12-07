@@ -1,11 +1,12 @@
 import time
 
 from selenium.common import TimeoutException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-from utils.helper import click_element, fill_input, check_toast_message, check_error_message, login
+from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, check_cart_quantity, scroll_to_element
 from selenium.webdriver.common.by import By
 
 
@@ -59,3 +60,55 @@ class TestAccount:
         time.sleep(3)
         assert updated_address.get_attribute("value") == "123 Đường ABC, Quận 1, TP.HCM", "Địa chỉ chưa được cập nhật!"
         print("Địa chỉ đã được cập nhật thành công!")
+
+    def test_change_password(self, driver):
+        driver.get("http://localhost/Webbanhang-main/index.html")
+
+        try:
+            # Đăng nhập
+            login(driver, "0123456789", "123456")
+            time.sleep(4)  # Chờ đăng nhập hoàn tất
+
+            # Nhấn vào "Đăng nhập / Đăng ký"
+            click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
+
+            # Nhấn vào "Tài khoản của tôi"
+            click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
+            time.sleep(2)
+
+            # Điền mật khẩu hiện tại
+            current_password_input = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "password-cur-info"))
+            )
+            current_password_input.send_keys("123456")
+
+            # Điền mật khẩu mới và xác nhận
+            fill_input(driver, By.ID, "password-after-info", "Anhpham2@.")
+            fill_input(driver, By.ID, "password-comfirm-info", "Anhpham2@.")
+
+            click_element(driver, By.ID, "save-password")
+            time.sleep(1)
+
+            # Đăng xuất
+            logout(driver)
+            time.sleep(1)  # Chờ đăng xuất hoàn tất
+
+            # Đăng nhập lại với mật khẩu mới
+            login(driver, "0123456789", "Anhpham2@.")
+            time.sleep(2)  # Chờ đăng nhập hoàn tất
+
+            # Nhấn vào "Đăng nhập / Đăng ký"
+            click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
+
+            # Kiểm tra đăng nhập thành công
+            my_account_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']"))
+            )
+            assert my_account_button.is_displayed(), "Đăng nhập thất bại, không thấy 'Tài khoản của tôi'"
+            print("Đăng nhập lại thành công, mật khẩu đã được thay đổi.")
+
+        finally:
+            # Luôn đảm bảo đăng xuất
+            logout(driver)

@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-from utils.helper import click_element, fill_input, check_toast_message, check_error_message
+from utils.helper import click_element, fill_input, check_toast_message, check_error_message, logout, login
 from selenium.webdriver.common.by import By
 
 
@@ -128,8 +128,8 @@ class TestAuthentication:
         click_element(driver, By.ID, "signup")
 
         # Điền thông tin vào các trường đăng ký
-        fill_input(driver, By.ID, "fullname", "Nguyễn Văn AC")  # Họ và tên
-        fill_input(driver, By.ID, "phone", "0123456769")  # Số điện thoại
+        fill_input(driver, By.ID, "fullname", "Nguyễn dVăn AC")  # Họ và tên
+        fill_input(driver, By.ID, "phone", "01234567629")  # Số điện thoại
         fill_input(driver, By.ID, "password", "password123")  # Mật khẩu
         fill_input(driver, By.ID, "password_confirmation", "password123")  # Nhập lại mật khẩu
         time.sleep(2)
@@ -230,20 +230,7 @@ class TestAuthentication:
         click_element(driver, By.ID, "login-button")
         time.sleep(2)
 
-        # Kiểm tra thông báo hoặc trạng thái đăng nhập
-        # (Có thể thêm kiểm tra toast thông báo thành công tại đây nếu cần)
-
         # Đăng xuất
-        # Nhấn vào "Đăng nhập / Đăng ký"
-        click_element(driver, By.CLASS_NAME, "text-dndk")
-        time.sleep(1)
+        assert logout(driver), "Đăng xuất không thành công."
+        print("Kiểm thử đăng xuất thành công.")
 
-        # Nhấn vào "Thoát tài khoản"
-        click_element(driver, By.ID, "logout")
-        time.sleep(1)
-
-        # Kiểm tra nút "Đăng nhập" xuất hiện sau khi đăng xuất
-        login_button_after_logout = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "login"))
-        )
-        assert login_button_after_logout.is_displayed(), "Nút 'Đăng nhập' không xuất hiện sau khi đăng xuất."
