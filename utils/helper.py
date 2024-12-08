@@ -209,13 +209,15 @@ def scroll_to_element(driver, element):
     driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element)
     time.sleep(1)  # Đợi cuộn xong
 
+
+
 def add_to_cart(driver):
     try:
-        # Mở giỏ hàng để lấy danh sách sản phẩm
+        # Mở giỏ hàng để lấy danh sách sản phẩm hiện có
         click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
         time.sleep(2)  # Chờ giỏ hàng mở
 
-        # Khởi tạo existing_products trước khi sử dụng
+        # Khởi tạo từ điển để lưu tên và số lượng các sản phẩm hiện có trong giỏ hàng
         existing_products = {}
 
         # Kiểm tra xem giỏ hàng có rỗng không
@@ -227,14 +229,14 @@ def add_to_cart(driver):
             print("Giỏ hàng hiện tại rỗng.")
             # Đóng giỏ hàng nếu giỏ hàng rỗng
             click_element(driver, By.CSS_SELECTOR, "i.fa-sharp.fa-solid.fa-xmark")
-            time.sleep(2)  # Chờ giỏ hàng đóng
+            # time.sleep(2)  # Chờ giỏ hàng đóng
         else:
             # Lấy danh sách các sản phẩm trong giỏ hàng
             cart_items = WebDriverWait(driver, 10).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
             )
 
-            # Lưu tên và số lượng các sản phẩm trong giỏ hàng
+            # Lưu tên và số lượng các sản phẩm hiện có trong giỏ hàng vào từ điển
             print("Sản phẩm hiện có trong giỏ hàng:")
             for item in cart_items:
                 cart_product_name = item.find_element(By.CSS_SELECTOR, ".cart-item-title").text.strip()
@@ -245,60 +247,63 @@ def add_to_cart(driver):
 
             # Đóng giỏ hàng sau khi lấy danh sách sản phẩm
             click_element(driver, By.CSS_SELECTOR, "i.fa-sharp.fa-solid.fa-xmark")
-            time.sleep(2)  # Chờ giỏ hàng đóng
+            # time.sleep(2)  # Chờ giỏ hàng đóng
 
-        # Tiến hành các bước còn lại để đặt món nếu giỏ hàng không rỗng
-        # Tìm tất cả các nút "Đặt món"
+        # Tiến hành thêm món vào giỏ hàng nếu giỏ hàng không rỗng
+        # Tìm tất cả các nút "Đặt món" để có thể thêm sản phẩm vào giỏ hàng
         order_buttons = WebDriverWait(driver, 10).until(
             EC.visibility_of_all_elements_located((By.XPATH, "//button[contains(@class, 'order-item')]"))
         )
 
-        # Chọn một nút ngẫu nhiên từ danh sách nút "Đặt món"
+        # Chọn một nút ngẫu nhiên từ danh sách các nút "Đặt món"
         selected_button = random.choice(order_buttons)
-        scroll_to_element(driver, selected_button)
+        scroll_to_element(driver, selected_button)  # Cuộn trang đến vị trí nút "Đặt món"
 
-        selected_button.click()
-        time.sleep(2)  # Chờ sau khi nhấn "Đặt món"
+        selected_button.click()  # Nhấn nút "Đặt món"
+        time.sleep(1)  # Chờ sau khi nhấn "Đặt món"
 
-        # Lấy tên sản phẩm đã chọn
+        # Lấy tên sản phẩm đã chọn để thêm vào giỏ hàng
         product_name = selected_button.find_element(By.XPATH, "../../..//div[@class='card-title']/a").text.strip()
         print(f"Sản phẩm được chọn để thêm vào giỏ hàng: {product_name}")
 
         # Nhấn vào nút "Thêm vào giỏ hàng"
         click_element(driver, By.ID, "add-cart")
-        time.sleep(2)  # Chờ sau khi thêm vào giỏ hàng
+        time.sleep(1)  # Chờ sau khi nhấn "Thêm vào giỏ hàng"
 
-        # Mở giỏ hàng để kiểm tra sản phẩm đã thêm
+        # Mở giỏ hàng để kiểm tra sản phẩm vừa thêm
         click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
         WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, ".cart-container"))
         )  # Đợi giỏ hàng hiển thị
-        time.sleep(2)  # Chờ giỏ hàng mở
+        # time.sleep(2)  # Chờ giỏ hàng mở
 
-        # Lấy danh sách các sản phẩm trong giỏ hàng
+        # Lấy danh sách các sản phẩm trong giỏ hàng để kiểm tra
         cart_items = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
         )
 
-        product_found = False
-        product_quantity = 0
+        product_found = False  # Biến đánh dấu xem sản phẩm có được tìm thấy trong giỏ hàng
+        product_quantity = 0  # Biến lưu số lượng của sản phẩm tìm thấy
 
-        # Kiểm tra xem sản phẩm vừa thêm có trong giỏ hàng không và tính toán số lượng
+        # Kiểm tra xem sản phẩm vừa thêm có có mặt trong giỏ hàng không
         for item in cart_items:
             cart_product_name = item.find_element(By.CSS_SELECTOR, ".cart-item-title").text.strip()
             if cart_product_name == product_name:
                 product_found = True
                 quantity_input = item.find_element(By.CSS_SELECTOR, ".input-qty")
                 product_quantity = int(quantity_input.get_attribute("value"))
-                break
+                break  # Nếu đã tìm thấy sản phẩm thì thoát khỏi vòng lặp
 
         # Kiểm tra lại số lượng sản phẩm nếu sản phẩm đã có sẵn trong giỏ hàng trước đó
         if product_found:
             if product_name in existing_products:
-                product_quantity += existing_products[product_name]
+                # Sản phẩm đã có trong giỏ hàng, cộng số lượng hiện tại với số lượng mới thêm vào
+                product_quantity = existing_products[product_name] + 1
             print(f"Sản phẩm '{product_name}' đã được thêm vào giỏ hàng với tổng số lượng: {product_quantity}.")
         else:
-            print(f"Sản phẩm '{product_name}' không có trong giỏ hàng sau khi thêm.")
+            # Nếu sản phẩm không có trong giỏ hàng trước đó, số lượng mong muốn sẽ là 1 (số lượng vừa thêm vào)
+            product_quantity = 1
+            print(f"Sản phẩm '{product_name}' không có trong giỏ hàng trước đó. Đã thêm mới với số lượng: {product_quantity}.")
 
         # Kiểm tra số lượng hiển thị trong giỏ hàng
         expected_quantity = product_quantity
@@ -307,6 +312,7 @@ def add_to_cart(driver):
             if cart_product_name == product_name:
                 quantity_input = item.find_element(By.CSS_SELECTOR, ".input-qty")
                 displayed_quantity = int(quantity_input.get_attribute("value"))
+                # Kiểm tra số lượng hiển thị trong giỏ hàng với số lượng mong đợi
                 assert expected_quantity == displayed_quantity, \
                     f"Số lượng sản phẩm '{product_name}' trong giỏ hàng không khớp. Mong đợi {expected_quantity}, nhận được {displayed_quantity}."
                 print(f"Số lượng sản phẩm '{product_name}' trong giỏ hàng khớp với mong đợi: {displayed_quantity}.")
@@ -314,16 +320,15 @@ def add_to_cart(driver):
 
         # Đóng giỏ hàng
         click_element(driver, By.CSS_SELECTOR, "i.fa-sharp.fa-solid.fa-xmark")
-        time.sleep(2)  # Chờ giỏ hàng đóng
+        # time.sleep(2)  # Chờ giỏ hàng đóng
 
-        # Trả về kết quả: tên sản phẩm và số lượng
+        # Trả về kết quả: tên sản phẩm và số lượng đã thêm vào giỏ hàng
         return product_name, product_quantity
 
     except Exception as e:
+        # Nếu có lỗi, in ra thông báo lỗi và ném lỗi lên
         print(f"Đã xảy ra lỗi trong hàm add_to_cart: {e}")
-        raise
-
-
+        raise  # Ném lại lỗi để có thể xử lý ngoài hàm này
 
 
 def add_multiple_to_cart(driver):

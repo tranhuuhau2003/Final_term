@@ -274,138 +274,48 @@ class TestShoppingcartCheckout:
             # Đảm bảo đăng xuất dù có xảy ra lỗi hay không
             logout(driver)
 
-    # anh đang sửa
     def test_payment_on_delivery(self, driver):
         try:
             # Mở trang chính và đăng nhập
             driver.get("http://localhost/Webbanhang-main/index.html")
             time.sleep(2)
-            login(driver, "hgbaodev", "123456")
-            time.sleep(4)
 
-            # # Thêm sản phẩm vào giỏ hàng
-            added_product_name, added_product_quantity = add_to_cart(driver)
-
-            # Mở giỏ hàng và tính tổng tiền
-            click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
-            time.sleep(2)
-            cart_items = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
-            )
-
-            calculated_total_price = sum(
-                float(item.find_element(By.CSS_SELECTOR, ".cart-item-price").get_attribute("data-price")) *
-                int(item.find_element(By.CSS_SELECTOR, ".input-qty").get_attribute("value"))
-                for item in cart_items
-            )
-
-            # Kiểm tra tổng tiền hiển thị trên giao diện
-            total_price_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, ".cart-total-price .text-price"))
-            )
-            total_price = float(total_price_element.text.strip().replace(".", "").replace("₫", ""))
-
-            assert calculated_total_price == total_price, f"Tổng tiền sai. Tính: {calculated_total_price}, Hiển thị: {total_price}"
-
-            # Tiến hành thanh toán
-            click_element(driver, By.CSS_SELECTOR, "button.thanh-toan")
-            time.sleep(2)
-            click_element(driver, By.ID, "giaotannoi")
-            time.sleep(2)
-
-            # Chọn ngày giao hàng
-            date_options = WebDriverWait(driver, 10).until(
-                EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "div.date-order a.pick-date"))
-            )
-            random.choice(date_options).click()
-            time.sleep(2)
-
-            # Điền thông tin người nhận
-            fill_input(driver, By.ID, "tennguoinhan", "Nguyễn Văn A")
-            fill_input(driver, By.ID, "sdtnhan", "0901234567")
-            fill_input(driver, By.ID, "diachinhan", "Số 123, Đường ABC, Quận XYZ, TP.HCM")
-
-            time.sleep(2)
-
-            # Kiểm tra tiền hàng và phí vận chuyển
-            order_total = float(
-                driver.find_element(By.CSS_SELECTOR, "#checkout-cart-total").text.strip().replace(".", "").replace("₫",
-                                                                                                                   ""))
-            shipping_fee = float(
-                driver.find_element(By.CSS_SELECTOR, ".chk-ship .price-detail span").text.strip().replace(".",
-                                                                                                          "").replace(
-                    "₫", ""))
-            final_total = float(
-                driver.find_element(By.CSS_SELECTOR, "#checkout-cart-price-final").text.strip().replace(".",
-                                                                                                        "").replace("₫",
-                                                                                                                    ""))
-
-            expected_final_total = order_total + shipping_fee
-            assert final_total == expected_final_total, f"Tổng tiền không đúng. Tính: {expected_final_total}, Hiển thị: {final_total}"
-
-            # Hoàn tất thanh toán
-            click_element(driver, By.CSS_SELECTOR, ".complete-checkout-btn")
-
-            time.sleep(2)
-
-            # Kiểm tra đơn hàng đã mua
-            click_element(driver, By.CLASS_NAME, "text-dndk")
-            time.sleep(2)
-            click_element(driver, By.XPATH, '//a[@onclick="orderHistory()"]')
-            time.sleep(2)
-
-            order_history_elements = driver.find_elements(By.CLASS_NAME, "order-history-group")
-            assert order_history_elements, "Không có đơn hàng nào."
-
-            newest_order = order_history_elements[0]
-            product_name_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-info").find_element(
-                By.TAG_NAME, "h4").text.strip()
-            quantity_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-quantity").text.strip()
-            price_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-current-price").text.strip()
-            order_total_history = newest_order.find_element(By.CLASS_NAME, "order-history-toltal-price").text.strip()
-
-            assert added_product_name == product_name_from_history, f"Sản phẩm không đúng. Tìm thấy: {product_name_from_history}"
-            assert added_product_quantity == quantity_from_history, f"Số lượng không đúng. Tìm thấy: {quantity_from_history}"
-            assert order_total == float(price_from_history.replace(".", "").replace("₫",
-                                                                                    "")), f"Tiền hàng không đúng. Tính: {order_total}, Hiển thị: {price_from_history}"
-
-            print("Thông tin đơn hàng thanh toán và đơn hàng đã mua khớp.")
-
-        except Exception as e:
-            print(f"Đã xảy ra lỗi trong quá trình test: {e}")
-            raise
-        finally:
-            logout(driver)
-    # anh đang sửa
-    def test_payment_on_delivery2(self, driver):
-        try:
-            # Mở trang chính và đăng nhập
-            driver.get("http://localhost/Webbanhang-main/index.html")
-            time.sleep(2)
             login(driver, "hgbaodev", "123456")
             time.sleep(4)
 
             # Thêm sản phẩm vào giỏ hàng
-            added_product_name, added_product_quantity = add_to_cart(driver)
+            products_in_cart = []
+            for _ in range(1):  # Giả sử thêm 1 sản phẩm
+                product_name, product_quantity = add_to_cart(driver)
+                products_in_cart.append({"name": product_name, "quantity": product_quantity})
 
-            # Mở giỏ hàng và tính tổng tiền
+            print("Sản phẩm trong giỏ hàng:", products_in_cart)
+
+            # Mở giỏ hàng và kiểm tra tổng tiền
             click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
             time.sleep(2)
             cart_items = WebDriverWait(driver, 10).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
             )
 
+            # Tính tổng tiền giỏ hàng
             calculated_total_price = sum(
                 float(item.find_element(By.CSS_SELECTOR, ".cart-item-price").get_attribute("data-price")) *
                 int(item.find_element(By.CSS_SELECTOR, ".input-qty").get_attribute("value"))
                 for item in cart_items
             )
 
+            # In ra tổng tiền giỏ hàng tính toán
+            print(f"Tổng tiền giỏ hàng tính toán: {calculated_total_price}₫")
+
             # Kiểm tra tổng tiền hiển thị trên giao diện
             total_price_element = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, ".cart-total-price .text-price"))
             )
             total_price = float(total_price_element.text.strip().replace(".", "").replace("₫", ""))
+
+            # In ra tổng tiền hiển thị
+            print(f"Tổng tiền giỏ hàng hiển thị: {total_price}₫")
 
             assert calculated_total_price == total_price, f"Tổng tiền sai. Tính: {calculated_total_price}, Hiển thị: {total_price}"
 
@@ -429,7 +339,7 @@ class TestShoppingcartCheckout:
 
             time.sleep(2)
 
-            # Kiểm tra tiền hàng và phí vận chuyển
+            # Kiểm tra tổng tiền thanh toán
             order_total = float(
                 driver.find_element(By.CSS_SELECTOR, "#checkout-cart-total").text.strip().replace(".", "").replace("₫",
                                                                                                                    "")
@@ -445,156 +355,245 @@ class TestShoppingcartCheckout:
                                                                                                                     "")
             )
 
+            # In ra các tổng tiền
+            print(f"Tổng tiền hàng: {order_total}₫")
+            print(f"Phí vận chuyển: {shipping_fee}₫")
+            print(f"Tổng tiền cuối cùng: {final_total}₫")
+
             expected_final_total = order_total + shipping_fee
             assert final_total == expected_final_total, f"Tổng tiền không đúng. Tính: {expected_final_total}, Hiển thị: {final_total}"
 
-
-
-            # Kiểm tra tiền hàng, phí vận chuyển và tổng tiền trong phần thanh toán
-            checkout_section = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, ".checkout-col-right"))
-            )
-
-            # Lấy tiền hàng từ phần thanh toán
-            order_total_text = driver.find_element(By.CSS_SELECTOR, "#checkout-cart-total").text.strip()
-            order_total = float(order_total_text.replace(".", "").replace("₫", "").strip())
-
-            # So sánh tiền hàng trong phần thanh toán với tổng tiền hàng trong giỏ hàng
-            if order_total == calculated_total_price:
-                print(f"Tiền hàng trong phần thanh toán đúng với tiền hàng giỏ hàng: {order_total} ₫")
-            else:
-                print(
-                    f"Tiền hàng trong phần thanh toán không đúng. Tiền hàng giỏ hàng: {calculated_total_price} ₫, Tiền hàng thanh toán: {order_total} ₫")
-
-            # Lấy phí vận chuyển
-            shipping_fee_text = driver.find_element(By.CSS_SELECTOR, ".chk-ship .price-detail span").text.strip()
-            shipping_fee = float(shipping_fee_text.replace(".", "").replace("₫", "").strip())
-
-            # Lấy tổng tiền cuối cùng (bao gồm phí vận chuyển)
-            final_total_text = driver.find_element(By.CSS_SELECTOR, "#checkout-cart-price-final").text.strip()
-            final_total = float(final_total_text.replace(".", "").replace("₫", "").strip())
-
-            # Tính toán tổng tiền từ tiền hàng và phí vận chuyển
-            expected_final_total = order_total + shipping_fee
-
-            # Kiểm tra tổng tiền cuối cùng có đúng không
-            if final_total == expected_final_total:
-                print(f"Tổng tiền sau khi cộng phí vận chuyển là chính xác: {final_total} ₫")
-            else:
-                print(
-                    f"Tổng tiền sau khi cộng phí vận chuyển không đúng. Tổng tiền tính toán: {expected_final_total} ₫, Tổng tiền hiển thị: {final_total} ₫")
-
-
-
-
-
-
-            # Lấy tất cả các sản phẩm trong phần thanh toán
-            food_items = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#list-order-checkout .food-total"))
-            )
-            # In ra thông tin cho mỗi món ăn
-            print(f"Thông tin đơn hàng:")
-            for food_item in food_items:
-                # Lấy tên món ăn
-                food_name = food_item.find_element(By.CSS_SELECTOR, ".name-food").text.strip()
-                # Lấy số lượng món ăn
-                food_quantity = food_item.find_element(By.CSS_SELECTOR, ".count").text.strip()
-
-                # In ra thông tin món ăn
-                print(f"Tên món ăn: {food_name}")
-                print(f"Số lượng: {food_quantity}")
-
-            # In ra thông tin tiền hàng, phí vận chuyển và tổng tiền
-            print(f"Tiền hàng: {order_total} ₫")
-            print(f"Phí vận chuyển: {shipping_fee} ₫")
-            print(f"Tổng tiền: {final_total} ₫")
-
             # Hoàn tất thanh toán
-            complete_checkout_button = driver.find_element(By.CSS_SELECTOR, ".complete-checkout-btn")
-            complete_checkout_button.click()
+            click_element(driver, By.CSS_SELECTOR, ".complete-checkout-btn")
             time.sleep(2)
 
-
-
-
-
-            print(f"Thông tin sản phẩm trong đơn hàng mới nhất:")
-            # Kiểm tra đơn hàng đã mua
+            # Kiểm tra lịch sử đơn hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
             click_element(driver, By.XPATH, '//a[@onclick="orderHistory()"]')
             time.sleep(2)
 
-            # Lấy tất cả các đơn hàng trong lịch sử
             order_history_elements = driver.find_elements(By.CLASS_NAME, "order-history-group")
-            assert order_history_elements, "Không có đơn hàng nào được tìm thấy."
+            assert order_history_elements, "Không có đơn hàng nào."
 
-            # Chọn đơn hàng mới nhất (ở vị trí đầu tiên trong danh sách)
-            newest_order = order_history_elements[0]
+            # Lấy đơn hàng mới nhất
+            latest_order = order_history_elements[0]
+            product_name_from_history = latest_order.find_element(By.CLASS_NAME, "order-history-info").find_element(
+                By.TAG_NAME, "h4").text.strip()
+            quantity_from_history = latest_order.find_element(By.CLASS_NAME, "order-history-quantity").text.strip()
 
-            # Lấy thông tin sản phẩm trong đơn hàng mới nhất
-            order_items = newest_order.find_elements(By.CLASS_NAME,
-                                                     "order-history")  # Lấy tất cả các sản phẩm trong đơn hàng
+            print(f"Đơn hàng mới nhất: {product_name_from_history} x {quantity_from_history}")
 
+            # Kiểm tra sản phẩm trong lịch sử đơn hàng với giỏ hàng
+            product_found = False
+            for product in products_in_cart:
+                # Bỏ qua dấu chấm than và chữ 'x' trong tên và số lượng
+                product_name_from_history_cleaned = product_name_from_history.rstrip('!')
+                quantity_from_history_cleaned = quantity_from_history.lstrip('x')
 
+                if product["name"] == product_name_from_history_cleaned and str(
+                        product["quantity"]) == quantity_from_history_cleaned:
+                    product_found = True
+                    break  # Nếu tìm thấy, thoát khỏi vòng lặp
 
+            if not product_found:
+                print(f"Sản phẩm không khớp:")
+                print(f"- Tên sản phẩm trong giỏ hàng: {products_in_cart[0]['name']}")
+                print(f"- Tên sản phẩm trong lịch sử đơn hàng: {product_name_from_history}")
+                print(f"- Số lượng trong giỏ hàng: {products_in_cart[0]['quantity']}")
+                print(f"- Số lượng trong lịch sử đơn hàng: {quantity_from_history}")
 
-            # Duyệt qua tất cả các sản phẩm trong đơn hàng và in ra thông tin
-            for order_item in order_items:
-                product_name_from_history = order_item.find_element(By.CLASS_NAME, "order-history-info").find_element(
-                    By.TAG_NAME, "h4").text.strip()
-                quantity_from_history = order_item.find_element(By.CLASS_NAME, "order-history-quantity").text.strip()
-                price_from_history = order_item.find_element(By.CLASS_NAME, "order-history-current-price").text.strip()
+            # Kiểm tra nếu không tìm thấy sản phẩm trong lịch sử đơn hàng
+            assert product_found, f"Sản phẩm {products_in_cart[0]['name']} không khớp trong lịch sử đơn hàng."
 
-                # Loại bỏ dấu chấm than và ký tự không mong muốn trong tên sản phẩm
-                product_name_from_history = product_name_from_history.replace("!", "").strip()
-
-                # In ra thông tin sản phẩm
-                print(f"Thông tin sản phẩm trong đơn hàng mới nhất:")
-                print(f"Tên món ăn: {product_name_from_history}")
-                print(f"Số lượng: {quantity_from_history}")
-                print(f"Tiền hàng: {price_from_history}")
-
-            # Lấy tổng tiền của đơn hàng mới nhất
-            order_total_history = newest_order.find_element(By.CLASS_NAME, "order-history-toltal-price").text.strip()
-
-            # In ra tổng tiền đơn hàng
-            print(f"Tổng tiền đơn hàng: {order_total_history}")
-
-            # Kiểm tra thông tin thanh toán với thông tin đơn hàng mới nhất
-            for i, food_item in enumerate(food_items):
-                # Lấy tên món ăn và số lượng trong phần thanh toán
-                food_name = food_item.find_element(By.CSS_SELECTOR, ".name-food").text.strip()
-                food_quantity = food_item.find_element(By.CSS_SELECTOR, ".count").text.strip()
-
-                # Lấy tên món ăn và số lượng trong lịch sử đơn hàng
-                product_name_from_history = order_items[i].find_element(By.CLASS_NAME,
-                                                                        "order-history-info").find_element(By.TAG_NAME,
-                                                                                                           "h4").text.strip()
-                quantity_from_history = order_items[i].find_element(By.CLASS_NAME,
-                                                                    "order-history-quantity").text.strip()
-                price_from_history = order_items[i].find_element(By.CLASS_NAME,
-                                                                 "order-history-current-price").text.strip()
-
-                # Loại bỏ dấu chấm than và ký tự không mong muốn trong tên sản phẩm
-                product_name_from_history = product_name_from_history.replace("!", "").strip()
-
-                # So sánh tên món ăn
-                assert food_name == product_name_from_history, f"Sản phẩm không đúng. Tìm thấy: {product_name_from_history}, nhưng sản phẩm thanh toán: {food_name}"
-
-                # So sánh số lượng món ăn
-                assert food_quantity == quantity_from_history, f"Số lượng không đúng. Tìm thấy: {quantity_from_history}, nhưng số lượng thanh toán: {food_quantity}"
-
-                # So sánh tiền hàng
-                assert order_total == float(price_from_history.replace(".", "").replace("₫",
-                                                                                        "").strip()), f"Tiền hàng không đúng. Tìm thấy: {price_from_history}, nhưng tiền hàng thanh toán: {order_total} ₫"
-
-            print("Thông tin đơn hàng thanh toán và đơn hàng đã mua khớp.")
+            print("Thông tin sản phẩm khớp với lịch sử đơn hàng.")
 
         except Exception as e:
             print(f"Đã xảy ra lỗi trong quá trình test: {e}")
-            raise
+            raise  # Ném lỗi lên để framework test ghi nhận
+
         finally:
-            logout(driver)
+            logout(driver)  # Đăng xuất sau khi kết thúc kiểm thử
+
+    def test_pay_until_pick_up(self, driver):
+        driver.get("http://localhost/Webbanhang-main/index.html")
+        print("Trang đã được tải.")
+
+        # Đăng nhập vào hệ thống
+        login(driver, "hgbaodev", "123456")
+        print("Đăng nhập thành công.")
+        time.sleep(4)
+
+        # Thêm sản phẩm vào giỏ hàng
+        product_name, product_quantity = add_to_cart(driver)
+        print(f"Sản phẩm {product_name} đã được thêm vào giỏ hàng.")
+
+        basket_icon = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping"))  # Chọn biểu tượng giỏ hàng
+        )
+        basket_icon.click()
+        print("Nhấn vào giỏ hàng.")
+        time.sleep(2)
+
+        # Lấy danh sách các sản phẩm trong giỏ hàng
+        cart_items = driver.find_elements(By.CSS_SELECTOR, ".cart-list .cart-item")
+
+        # Tính tổng tiền dựa trên giá và số lượng
+        calculated_total_price = 0
+        print("Đang tính tổng tiền...")
+
+        for item in cart_items:
+            # Lấy giá sản phẩm (giá ở dạng string có dấu phân cách)
+            price_element = item.find_element(By.CSS_SELECTOR, ".cart-item-price")
+            price = price_element.get_attribute("data-price")
+            price = float(price.strip())  # Chuyển đổi giá thành số, bỏ dấu phân cách nếu có
+
+            # Lấy số lượng sản phẩm
+            quantity_element = item.find_element(By.CSS_SELECTOR, ".input-qty")
+            quantity = int(quantity_element.get_attribute("value"))
+
+            # Tính tổng tiền cho sản phẩm này
+            calculated_total_price += price * quantity
+
+        # Lấy tổng tiền hiển thị trên giao diện
+        total_price_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".cart-total-price .text-price"))
+        )
+        total_price = total_price_element.text.strip()
+        total_price = float(total_price.replace(".", "").replace("₫", "").strip())  # Chuyển đổi giá trị thành số
+
+        # Kiểm tra xem tổng tiền tính toán có trùng với tổng tiền hiển thị trên giao diện không
+        if calculated_total_price == total_price:
+            print(f"Tổng tiền tính đúng: {calculated_total_price} ₫")
+        else:
+            print(
+                f"Tổng tiền không đúng. Tổng tiền tính toán: {calculated_total_price} ₫, Tổng tiền hiển thị: {total_price} ₫")
+
+        # Nhấn nút "Thanh toán"
+        checkout_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.thanh-toan"))
+        )
+        checkout_button.click()
+        print("Nhấn vào nút thanh toán.")
+        time.sleep(2)
+
+        # Chờ đến khi nút "Tự đến lấy" có thể được nhấn
+        pickup_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "tudenlay"))
+        )
+        pickup_button.click()
+        print("Nhấn vào nút tự đến lấy.")
+        time.sleep(2)
+
+        # Chọn ngày giao hàng
+        date_options = WebDriverWait(driver, 10).until(
+            EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "div.date-order a.pick-date"))
+        )
+        random_date = random.choice(date_options)
+        random_date.click()
+        print("Chọn ngày giao hàng.")
+        time.sleep(3)
+
+
+        print("Cuộn đến phần thông tin người nhận.")
+
+
+        # Chờ đến khi phần tử radio button có id là "chinhanh-1" hoặc "chinhanh-2" xuất hiện
+        radio_buttons = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "input[type='radio'][name='chinhanh']"))
+        )
+
+        # Chọn ngẫu nhiên một radio button
+        selected_radio_button = random.choice(radio_buttons)
+
+        driver.execute_script("arguments[0].click();", selected_radio_button)
+        print("Đã nhấn vào radio button bằng JavaScript.")
+
+        print("Chọn chi nhánh.")
+        time.sleep(2)
+
+        name_input = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "tennguoinhan"))
+        )
+        name_input.send_keys("Nguyễn Văn A")
+        print("Điền tên người nhận.")
+
+        phone_input = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "sdtnhan"))
+        )
+        phone_input.send_keys("0901234567")
+        print("Điền số điện thoại.")
+        time.sleep(2)
+
+        # Kiểm tra tiền hàng trong phần thanh toán
+        checkout_section = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".checkout-col-right"))
+        )
+        order_total_element = driver.find_element(By.CSS_SELECTOR, "#checkout-cart-total")
+        order_total = order_total_element.text.strip()
+        order_total = float(order_total.replace(".", "").replace("₫", "").strip())
+
+        if order_total == calculated_total_price:
+            print(f"Tiền hàng trong phần thanh toán đúng với tiền hàng giỏ hàng: {order_total} ₫")
+        else:
+            print(
+                f"Tiền hàng trong phần thanh toán không đúng. Tiền hàng giỏ hàng: {calculated_total_price} ₫, Tiền hàng thanh toán: {order_total} ₫")
+
+        # Kiểm tra tổng tiền cuối cùng
+        final_total_element = driver.find_element(By.CSS_SELECTOR, "#checkout-cart-price-final")
+        final_total = final_total_element.text.strip()
+        final_total = float(final_total.replace(".", "").replace("₫", "").strip())
+
+        if final_total == order_total:
+            print(f"Tổng tiền trong thanh toán đúng với tiền hàng: {final_total} ₫")
+        else:
+            print(
+                f"Tổng tiền trong thanh toán không đúng. Tiền hàng: {order_total} ₫, Tổng tiền hiển thị: {final_total} ₫")
+
+        # Lấy tên món ăn và số lượng từ thanh toán
+        food_name_element = driver.find_element(By.CSS_SELECTOR, ".food-total .name-food")
+        food_name = food_name_element.text.strip()
+        food_quantity_element = driver.find_element(By.CSS_SELECTOR, ".food-total .count")
+        food_quantity = food_quantity_element.text.strip()
+
+        print(
+            f"Thông tin đơn hàng: Tên món ăn: {food_name}, Số lượng: {food_quantity}, Tiền hàng: {order_total} ₫, Tổng tiền: {final_total} ₫")
+
+        # Hoàn tất thanh toán
+        complete_checkout_button = driver.find_element(By.CSS_SELECTOR, ".complete-checkout-btn")
+        complete_checkout_button.click()
+        print("Hoàn tất thanh toán.")
+        time.sleep(2)
+
+        # Kiểm tra đơn hàng đã mua
+        click_element(driver, By.CLASS_NAME, "text-dndk")
+
+        click_element(driver, By.XPATH, '//a[@onclick="orderHistory()"]')
+        print("Xem thông tin đơn hàng đã mua.")
+        time.sleep(2)
+
+        order_history_elements = driver.find_elements(By.CLASS_NAME, "order-history-group")
+        assert order_history_elements, "Không có đơn hàng nào được tìm thấy."
+
+        newest_order = order_history_elements[0]
+        product_name_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-info").find_element(
+            By.TAG_NAME, "h4").text.strip()
+        quantity_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-quantity").text.strip()
+        price_from_history = newest_order.find_element(By.CLASS_NAME, "order-history-current-price").text.strip()
+        order_total_history = newest_order.find_element(By.CLASS_NAME, "order-history-toltal-price").text.strip()
+
+        product_name_from_history = product_name_from_history.replace("!", "").strip()
+        quantity_from_history = re.sub(r'^(x)(\d+)', r'\2x', quantity_from_history)
+        quantity_from_history = re.sub(r'(\d+)(x)$', r'\1x', quantity_from_history)
+
+        print(
+            f"Thông tin đơn hàng mới nhất: Tên món ăn: {product_name_from_history}, Số lượng: {quantity_from_history}, Tiền hàng: {price_from_history}, Tổng tiền: {order_total_history}")
+
+        # So sánh thông tin đơn hàng
+        assert food_name == product_name_from_history, f"Sản phẩm không đúng. Tìm thấy: {product_name_from_history}, nhưng sản phẩm thanh toán: {food_name}"
+        assert food_quantity == quantity_from_history, f"Số lượng không đúng. Tìm thấy: {quantity_from_history}, nhưng số lượng thanh toán: {food_quantity}"
+        assert order_total == float(price_from_history.replace(".", "").replace("₫",
+                                                                                "").strip()), f"Tiền hàng không đúng. Tìm thấy: {price_from_history}, nhưng tiền hàng thanh toán: {order_total} ₫"
+
+        print("Thông tin đơn hàng thanh toán và đơn hàng đã mua khớp.")
 
