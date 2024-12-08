@@ -161,8 +161,6 @@ class TestCustomerManagement:
             # Chuyển đến phần "Khách hàng"
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
 
-
-
             # Chờ menu thả xuống xuất hiện để lọc khách hàng theo trạng thái
             dropdown = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "tinh-trang-user"))
@@ -257,6 +255,7 @@ class TestCustomerManagement:
             # Đảm bảo luôn logout sau khi kiểm tra xong
             logout_admin(driver)
 
+  # đang sửa chưa xong nha bé
     def test_filter_customers_by_date(self, driver):
         """
         Test lọc khách hàng trong danh sách theo khoảng ngày.

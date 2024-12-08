@@ -274,6 +274,7 @@ class TestShoppingcartCheckout:
             # Đảm bảo đăng xuất dù có xảy ra lỗi hay không
             logout(driver)
 
+    # anh đang sửa
     def test_payment_on_delivery(self, driver):
         try:
             # Mở trang chính và đăng nhập
@@ -375,7 +376,7 @@ class TestShoppingcartCheckout:
             raise
         finally:
             logout(driver)
-
+    # anh đang sửa
     def test_payment_on_delivery2(self, driver):
         try:
             # Mở trang chính và đăng nhập

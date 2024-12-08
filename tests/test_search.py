@@ -11,11 +11,23 @@ from selenium.webdriver.common.by import By
 
 @pytest.fixture
 def driver():
-    """Khởi tạo WebDriver cho mỗi bài kiểm thử."""
-    driver = webdriver.Chrome()  # Đảm bảo ChromeDriver đã được cài đặt và trong PATH
+    """
+    Khởi tạo WebDriver với profile Chrome được định trước.
+    """
+    profile_path = "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data"
+    profile_directory = "Default"  # Đây là profile mà bạn muốn sử dụng (ví dụ: "Default", "Profile 1",...)
+
+    options = webdriver.ChromeOptions()
+    options.add_argument(f"user-data-dir={profile_path}")  # Chỉ định thư mục chứa profile
+    options.add_argument(f"profile-directory={profile_directory}")  # Chỉ định tên thư mục profile
+
+    driver = webdriver.Chrome(options=options)
     driver.maximize_window()
-    yield driver
-    driver.quit()
+
+    try:
+        yield driver  # Cung cấp driver cho test
+    finally:
+        driver.quit()  # Đóng trình duyệt
 
 
 class TestSearch:
