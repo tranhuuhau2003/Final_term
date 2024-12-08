@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-from utils.helper import click_element, fill_input, check_toast_message, check_error_message
+from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, check_cart_quantity, scroll_to_element
 from selenium.webdriver.common.by import By
 
 

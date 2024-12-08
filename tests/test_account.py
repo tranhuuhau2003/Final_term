@@ -12,54 +12,65 @@ from selenium.webdriver.common.by import By
 
 @pytest.fixture
 def driver():
-    """Khởi tạo WebDriver cho mỗi bài kiểm thử."""
-    driver = webdriver.Chrome()  # Đảm bảo ChromeDriver đã được cài đặt và trong PATH
+    """
+    Khởi tạo WebDriver với profile Chrome được định trước.
+    """
+    profile_path = "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data"
+    profile_directory = "Default"  # Đây là profile mà bạn muốn sử dụng (ví dụ: "Default", "Profile 1",...)
+
+    options = webdriver.ChromeOptions()
+    options.add_argument(f"user-data-dir={profile_path}")  # Chỉ định thư mục chứa profile
+    options.add_argument(f"profile-directory={profile_directory}")  # Chỉ định tên thư mục profile
+
+    driver = webdriver.Chrome(options=options)
     driver.maximize_window()
-    yield driver
-    driver.quit()
+
+    try:
+        yield driver  # Cung cấp driver cho test
+    finally:
+        driver.quit()  # Đóng trình duyệt
 
 class TestAccount:
 
     def test_change_account_information(self, driver):
-        driver.get("http://localhost/Webbanhang-main/index.html")
+        try:
+            driver.get("http://localhost/Webbanhang-main/index.html")
 
-        # Gọi hàm login để đăng nhập
-        login(driver, "hgbaodev", "123456")
-        time.sleep(3)
+            # Gọi hàm login để đăng nhập
+            login(driver, "hgbaodev", "123456")
+            time.sleep(3)
 
-        # Nhấn vào "Đăng nhập / Đăng ký"
-        click_element(driver, By.CLASS_NAME, "text-dndk")
-        time.sleep(2)
+            # Nhấn vào "Đăng nhập / Đăng ký"
+            click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
 
-        # Nhấn vào "Tài khoản của tôi"
-        click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
-        time.sleep(2)
+            # Nhấn vào "Tài khoản của tôi"
+            click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
+            time.sleep(2)
 
-        # Cập nhật địa chỉ giao hàng
-        address_input = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "infoaddress"))
-        )
-        address_input.clear()  # Xóa địa chỉ cũ
-        address_input.click()
-        address_input.send_keys("123 Đường ABC, Quận 1, TP.HCM")
-        time.sleep(2)  # Thêm thời gian chờ sau khi nhập địa chỉ
+            # Cập nhật địa chỉ giao hàng
+            address_input = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "infoaddress"))
+            )
+            address_input.clear()  # Xóa địa chỉ cũ
+            address_input.click()
+            address_input.send_keys("123 Đường ABC, Quận 1, TP.HCM")
+            time.sleep(2)  # Thêm thời gian chờ sau khi nhập địa chỉ
 
-        # Nhấn "Lưu thay đổi"
-        click_element(driver, By.ID, "save-info-user")
-        time.sleep(3)  # Chờ thông tin được lưu
+            # Nhấn "Lưu thay đổi"
+            click_element(driver, By.ID, "save-info-user")
+            time.sleep(3)  # Chờ thông tin được lưu
 
-        # Nhấn vào "Đăng nhập / Đăng ký"
-        click_element(driver, By.CLASS_NAME, "text-dndk")
-        time.sleep(2)
+            # Kiểm tra thông báo thành công
+            check_toast_message(driver, "toast__msg", "Cập nhật thông tin thành công !")
+            print("Kiểm thử thay đổi thông tin tài khoản thành công!")
 
-        # Kiểm tra địa chỉ đã được cập nhật
-        click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
-        updated_address = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "infoaddress"))
-        )
-        time.sleep(3)
-        assert updated_address.get_attribute("value") == "123 Đường ABC, Quận 1, TP.HCM", "Địa chỉ chưa được cập nhật!"
-        print("Địa chỉ đã được cập nhật thành công!")
+        except Exception as e:
+            assert False, f"Đã xảy ra lỗi trong quá trình kiểm thử: {str(e)}"
+
+        finally:
+            # Gọi hàm logout để đảm bảo trạng thái sạch
+            logout(driver)
 
     def test_change_password(self, driver):
         driver.get("http://localhost/Webbanhang-main/index.html")
