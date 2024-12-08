@@ -173,6 +173,7 @@ def logout_admin(driver):
         time.sleep(1)
         # Nhấn vào nút "Đăng xuất"
         click_element(driver, By.ID, "logout-acc")
+        time.sleep(2)
 
 
         # Kiểm tra URL để xác nhận đăng xuất

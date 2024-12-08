@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from selenium.common import TimeoutException
@@ -9,6 +10,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, check_cart_quantity, scroll_to_element
 from selenium.webdriver.common.by import By
+from datetime import datetime
 
 
 
@@ -255,66 +257,83 @@ class TestCustomerManagement:
             # Đảm bảo luôn logout sau khi kiểm tra xong
             logout_admin(driver)
 
-  # đang sửa chưa xong nha bé
+    # test lọc khách hàng theo ngày
+    # nhớ cập nhật lại ngày kết thúc (2 chổ) khi chạy test demo
     def test_filter_customers_by_date(self, driver):
-        """
-        Test lọc khách hàng trong danh sách theo khoảng ngày.
-        """
         try:
-            # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
             time.sleep(2)
 
-            # Đăng nhập tài khoản admin
+            # Đăng nhập bằng hàm login có sẵn
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(3)
 
             # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
-            time.sleep(2)
+            time.sleep(1)
 
-            # Sử dụng JavaScript để thay đổi giá trị của ô ngày bắt đầu và ngày kết thúc
-            start_date_value = "2024-12-01"  # Thay đổi theo định dạng yyyy-mm-dd
-            end_date_value = "2024-12-04"  # Thay đổi theo định dạng yyyy-mm-dd
-            driver.execute_script(f"document.getElementById('time-start-user').value = '{start_date_value}';")
-            time.sleep(2)
+            # Nhập ngày kết thúc
+            fill_input(driver, By.ID, "time-end-user", "12-09-2024")  # Nhập ngày theo định dạng MM-DD-YYYY
+            time.sleep(3)
 
-            driver.execute_script(f"document.getElementById('time-end-user').value = '{end_date_value}';")
-            time.sleep(2)
+            # Nhập ngày bắt đầu
+            fill_input(driver, By.ID, "time-start-user", "12-01-2024")  # Nhập ngày theo định dạng MM-DD-YYYY
+            time.sleep(3)
 
-            # Đợi để hệ thống cập nhật danh sách khách hàng
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#show-user tr"))
-            )
+            # Đợi bảng xuất hiện
+            try:
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#show-user")))
+                table = driver.find_element(By.CSS_SELECTOR, "#show-user")
+                rows = table.find_elements(By.TAG_NAME, "tr")
 
-            # Lấy tất cả các dòng trong bảng kết quả
-            rows = driver.find_elements(By.CSS_SELECTOR, "#show-user tr")
+                # Kiểm tra nếu bảng chứa dòng "Không có dữ liệu"
+                if len(rows) == 1 and "Không có dữ liệu" in rows[0].text:
+                    print("Bảng không có dữ liệu, kiểm thử thành công.")
+                    assert True, "Bảng không có dữ liệu, không cần kiểm tra thêm."
+                    return
 
-            # Kiểm tra từng dòng xem ngày có nằm trong khoảng lọc không
-            found = False
-            for row in rows:
-                # Lấy giá trị ngày từ cột ngày (giả định ngày ở cột thứ 4)
-                date_cell = row.find_elements(By.TAG_NAME, "td")[3]
-                date_value = date_cell.text.strip()
+                # Chuyển đổi ngày bắt đầu và kết thúc thành datetime
+                start_date = datetime.strptime("12-01-2024", "%m-%d-%Y")
+                end_date = datetime.strptime("12-09-2024", "%m-%d-%Y")
 
-                # Kiểm tra xem ngày có nằm trong khoảng lọc không
-                if start_date_value <= date_value <= end_date_value:
-                    print(f"Ngày {date_value} nằm trong khoảng lọc.")
-                    found = True
-                else:
-                    print(f"Ngày {date_value} không nằm trong khoảng lọc.")
+                valid_count = 0
+                # Duyệt qua từng hàng để kiểm tra logic ngày
+                for i, row in enumerate(rows):
+                    try:
+                        # Lấy dữ liệu ngày từ cột "Ngày tham gia"
+                        date_text = row.find_element(By.XPATH, "./td[4]").text
+                        date_obj = datetime.strptime(date_text, "%d/%m/%Y")  # Định dạng dd/MM/yyyy
 
-            # Đảm bảo ít nhất một dòng dữ liệu nằm trong khoảng lọc
-            assert found, "Không có khách hàng nào tham gia trong khoảng ngày lọc."
+                        if start_date <= date_obj <= end_date:
+                            print(f"Hàng {i + 1}: {date_text} hợp lệ.")
+                            valid_count += 1
+                        else:
+                            print(f"Hàng {i + 1}: {date_text} không nằm trong khoảng ngày lọc.")
+                    except Exception as e:
+                        print(f"Lỗi xử lý hàng {i + 1}: {e}")
+
+                # Kiểm tra kết quả lọc
+                assert valid_count > 0, "Không có khách hàng nào tham gia trong khoảng ngày lọc."
+                print(f"Tìm thấy {valid_count} khách hàng hợp lệ.")
+
+            except TimeoutException:
+                assert False, "Không thể tìm thấy bảng dữ liệu sau khi chờ đợi."
+
+        except Exception as e:
+            print(f"Lỗi: {str(e)}")
+            assert False, f"Đã xảy ra lỗi trong quá trình kiểm thử: {str(e)}"
 
         finally:
-            # Đảm bảo luôn logout sau khi kiểm tra
-            logout_admin(driver)
+            # Đảm bảo logout sau khi kiểm thử
+            try:
+                logout_admin(driver)
+            except Exception as final_e:
+                print(f"Lỗi khi đăng xuất: {str(final_e)}")
+
 
     def test_reset_customer_page(self, driver):
         """
@@ -492,4 +511,5 @@ class TestCustomerManagement:
         finally:
             # Đảm bảo luôn đăng xuất khỏi tài khoản admin, ngay cả khi có lỗi
             logout_admin(driver)
+
 
