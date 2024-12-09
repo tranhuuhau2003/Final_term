@@ -367,7 +367,6 @@ class TestCustomerManagement:
             except Exception as final_e:
                 print(f"Lỗi khi đăng xuất: {str(final_e)}")
 
-
     def test_reset_customer_page(self, driver):
         """
         Test chức năng reset trang khách hàng.
