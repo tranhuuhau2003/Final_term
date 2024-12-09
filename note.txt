@@ -1,9 +1,9 @@
-bỏ hàm test_View_customer_information
-Cách 1: Mở Chrome thông qua Command Prompt (CMD)
-Mở Command Prompt (CMD):
-Nhấn Windows + R, gõ cmd, rồi nhấn Enter.
-Gõ lệnh sau:
-bash
-Copy code
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --user-data-dir="C:\Users\user\AppData\Local\Google\Chrome\User Data" --profile-directory="Default"
-Chrome sẽ mở lên với profile Default.
+******vì dùng localstorage nên chạy test với profile chỉ định để dữ liệu được lưu sau mỗi lần chạy code
+mỗi máy có mỗi profile khác nhau, để chạy:
+b1: mở chrome nhập chrome://version/
+b2: copy Profile Path tại dòng Profile Path	C:\Users\user\AppData\Local\Google\Chrome\User Data\Default
+b3: thay vào  profile_path = "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data" ở def driver của mỗi file test
+
+******có sửa code phần logout của source nên tải lại source
+
+******code này chạy trên pycharm, xampp, thư mục source lưu trong xampp: htdocs/Webbanhang-main
