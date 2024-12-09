@@ -7,3 +7,5 @@ b3: thay vào  profile_path = "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\
 ******có sửa code phần logout của source nên tải lại source
 
 ******code này chạy trên pycharm, xampp, thư mục source lưu trong xampp: htdocs/Webbanhang-main
+
+test quay về trang chủ, sửa test ngày tháng
