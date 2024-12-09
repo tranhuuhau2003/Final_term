@@ -425,3 +425,53 @@ def check_cart_quantity(driver, added_products):
     except Exception as e:
         print(f"Đã xảy ra lỗi trong hàm check_cart_quantity: {e}")
         raise
+
+
+
+def check_filtered_products(driver, min_price, max_price):
+    """Kiểm tra sản phẩm sau khi lọc theo giá."""
+    products_section = driver.find_element(By.ID, "home-products")
+    products = products_section.find_elements(By.CLASS_NAME, "card-product")
+
+    for product in products:
+        price_element = product.find_element(By.CLASS_NAME, "current-price")
+        product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+        product_price_text = product_price_text.replace(".", "")
+
+        try:
+            product_price = int(product_price_text)
+        except ValueError:
+            print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
+            continue
+
+        # Kiểm tra xem giá sản phẩm có nằm trong khoảng lọc không
+        assert min_price <= product_price <= max_price, \
+            f"Giá sản phẩm '{product.text}' ({product_price}₫) không nằm trong khoảng {min_price}₫ đến {max_price}₫."
+
+def check_sorted_products(driver, ascending=True):
+    """Kiểm tra sản phẩm sau khi sắp xếp theo giá."""
+    prev_price = 0 if ascending else float('inf')
+    products_section = driver.find_element(By.ID, "home-products")
+    products = products_section.find_elements(By.CLASS_NAME, "card-product")
+
+    for product in products:
+        price_element = product.find_element(By.CLASS_NAME, "current-price")
+        product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+        product_price_text = product_price_text.replace(".", "")
+
+        try:
+            product_price = int(product_price_text)
+        except ValueError:
+            print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
+            continue
+
+        # Kiểm tra nếu sắp xếp theo giá tăng dần
+        if ascending:
+            assert product_price >= prev_price, \
+                f"Giá sản phẩm '{product.text}' ({product_price}₫) không theo thứ tự từ thấp đến cao."
+        else:
+            assert product_price <= prev_price, \
+                f"Giá sản phẩm '{product.text}' ({product_price}₫) không theo thứ tự từ cao đến thấp."
+
+        # Cập nhật giá sản phẩm hiện tại
+        prev_price = product_price

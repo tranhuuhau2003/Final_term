@@ -194,67 +194,100 @@ class TestCustomerManagement:
             # Đảm bảo luôn logout sau khi kiểm tra xong
             logout_admin(driver)
 
-    def test_search_customer(self, driver):
+    def test_search_existing_customer(self, driver):
         """
-        Test tìm kiếm khách hàng trong danh sách khách hàng.
+        Kiểm tra tìm kiếm với các từ khóa có khách hàng tồn tại.
         """
         try:
-            # Truy cập trang web
+            # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
-            time.sleep(2)
 
-            # Đăng nhập tài khoản admin sử dụng hàm login từ helper
+            # Đăng nhập
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(4)
 
-            # Nhấn vào "Đăng nhập / Đăng ký"
+            # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
             time.sleep(2)
 
-            # Điều hướng đến trang quản lý cửa hàng
+            # Danh sách khách hàng mẫu để tìm kiếm
+            existing_customers = ["Hữu Hậu"]
+
+            # Tìm kiếm khách hàng tồn tại
+            for customer in existing_customers:
+                print(f"Tìm kiếm khách hàng: {customer}")
+
+                # Tìm trường tìm kiếm và nhập khách hàng
+                search_input = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.ID, "form-search-user"))
+                )
+                search_input.clear()  # Xóa nội dung cũ
+                search_input.send_keys(customer)  # Nhập từ khóa tìm kiếm
+                time.sleep(2)
+
+                # Kiểm tra kết quả tìm kiếm
+                search_results = WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located((By.XPATH, "//tbody[@id='show-user']/tr"))
+                )
+                assert len(search_results) > 0, f"Không tìm thấy khách hàng nào với từ khóa: {customer}"
+
+                for result in search_results:
+                    cells = result.find_elements(By.TAG_NAME, "td")
+                    found = any(customer.lower() in cell.text.lower() for cell in cells)
+                    assert found, f"Không tìm thấy thông tin khách hàng '{customer}' trong hàng: {result.text}"
+
+                print(f"Tìm kiếm khách hàng '{customer}' thành công. Tất cả kết quả đều khớp!")
+
+        finally:
+            # Đảm bảo logout sau khi kiểm tra
+            logout_admin(driver)
+
+    def test_search_nonexistent_customer(self, driver):
+        """
+        Kiểm tra tìm kiếm với từ khóa không tồn tại trong danh sách khách hàng.
+        """
+        try:
+            # Mở trang web
+            driver.get("http://localhost/Webbanhang-main/index.html")
+
+            # Đăng nhập
+            login(driver, "hgbaodev", "123456")
+            time.sleep(4)
+
+            # Điều hướng đến trang quản lý khách hàng
+            click_element(driver, By.CLASS_NAME, "text-dndk")
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-
-            # Chuyển đến phần "Khách hàng"
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']"))
-            )
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
+            time.sleep(2)
 
-            # Chờ trường tìm kiếm khách hàng xuất hiện
+            # Từ khóa tìm kiếm không tồn tại
+            nonexistent_keyword = "Không Tồn Tại"
+            print(f"Tìm kiếm khách hàng không tồn tại: {nonexistent_keyword}")
+
+            # Tìm trường tìm kiếm và nhập từ khóa
             search_input = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "form-search-user"))
             )
-            search_input.clear()  # Xóa nội dung cũ nếu có
-            search_input.send_keys("Nhật Sinh")  # Nhập tên khách hàng vào ô tìm kiếm
+            search_input.clear()  # Xóa nội dung cũ
+            search_input.send_keys(nonexistent_keyword)  # Nhập từ khóa không tồn tại
             time.sleep(2)
 
-            # Đợi bảng kết quả cập nhật
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "show-user"))
-            )
-
-            # Lấy tất cả các hàng trong bảng kết quả
-            rows = driver.find_elements(By.XPATH, "//tbody[@id='show-user']/tr")
-
-            # Kiểm tra xem từ khóa có trong các ô của bảng không
-            keyword = "Nhật Sinh"
-            found = False
-            for row in rows:
-                cells = row.find_elements(By.TAG_NAME, "td")
-                for cell in cells:
-                    if keyword in cell.text:
-                        found = True
-                        print("Kết quả tìm kiếm đúng:", cell.text)
-                        break
-                if found:
-                    break
-
-            # Sử dụng assert để kiểm tra kết quả
-            assert found, f"Không tìm thấy kết quả khớp với từ khóa: {keyword}"
-            print("Tìm kiếm khách hàng thành công!")
+            # Kiểm tra sự hiện diện của thông báo "Không có dữ liệu"
+            try:
+                no_data_message = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, "//tbody[@id='show-user']/tr/td[@colspan='5' and text()='Không có dữ liệu']"))
+                )
+                assert no_data_message.is_displayed(), "Thông báo 'Không có dữ liệu' không được hiển thị khi không tìm thấy kết quả."
+                print("Thông báo 'Không có dữ liệu' hiển thị chính xác.")
+            except Exception as e:
+                print(f"Lỗi khi kiểm tra thông báo 'Không có dữ liệu': {e}")
+                raise
 
         finally:
-            # Đảm bảo luôn logout sau khi kiểm tra xong
+            # Đảm bảo luôn đăng xuất sau khi kiểm tra
             logout_admin(driver)
 
     # test lọc khách hàng theo ngày
