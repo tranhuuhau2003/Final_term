@@ -1,4 +1,3 @@
-# Tui làm đăng nhập,đăng kí ,đăng xuất,giỏ hàng( bao gồm thanh toán),tài khoản của tôi,tìm kiếm món ăn ở trang chủ,chức năng khách hàng của admin  oke ko mn
 import random
 import time
 from selenium.webdriver.common.by import By
@@ -184,7 +183,6 @@ def logout_admin(driver):
     except Exception:
         return False
 
-
 def add_customer(driver, fullname, phone, password):
     """
     Hàm thêm một khách hàng mới vào danh sách khách hàng.
@@ -208,8 +206,6 @@ def add_customer(driver, fullname, phone, password):
 def scroll_to_element(driver, element):
     driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element)
     time.sleep(1)  # Đợi cuộn xong
-
-
 
 def add_to_cart(driver):
     try:
@@ -330,7 +326,6 @@ def add_to_cart(driver):
         print(f"Đã xảy ra lỗi trong hàm add_to_cart: {e}")
         raise  # Ném lại lỗi để có thể xử lý ngoài hàm này
 
-
 def add_multiple_to_cart(driver):
     try:
         # Danh sách các sản phẩm đã thêm vào giỏ hàng
@@ -425,8 +420,6 @@ def check_cart_quantity(driver, added_products):
     except Exception as e:
         print(f"Đã xảy ra lỗi trong hàm check_cart_quantity: {e}")
         raise
-
-
 
 def check_filtered_products(driver, min_price, max_price):
     """Kiểm tra sản phẩm sau khi lọc theo giá."""

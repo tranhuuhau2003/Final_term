@@ -1,0 +1,22 @@
+{
+  "name": "webbanhang-main",
+  "version": "1.0.0",
+  "description": "<!-- author: hgbaodev --> # Đồ án môn lập trình web và ứng dụng ### Tài khoản Admin",
+  "main": "jest.setup.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}
