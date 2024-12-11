@@ -32,6 +32,7 @@ class TestDashBoard:
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
+            time.sleep(1)
 
             # Đăng nhập vào hệ thống
             login(driver, "hgbaodev", "123456")
@@ -39,8 +40,10 @@ class TestDashBoard:
 
             # Mở trang admin
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-            time.sleep(1)
+            time.sleep(2)
 
             # Lấy số liệu từ dashboard
             amount_user = int(driver.find_element(By.ID, "amount-user").text.strip())
@@ -91,7 +94,7 @@ class TestDashBoard:
 
             # Mở danh mục khách hàng
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
-            time.sleep(1)
+            time.sleep(3)
 
             # Đếm số lượng khách hàng trong trang hiện tại
             customers = driver.find_elements(By.XPATH,
@@ -109,7 +112,7 @@ class TestDashBoard:
             # Mở danh mục đơn hàng
             click_element(driver, By.XPATH,
                           "//li[contains(@class, 'sidebar-list-item') and .//div[@class='hidden-sidebar'][contains(text(), 'Đơn hàng')]]")
-            time.sleep(1)
+            time.sleep(4)
 
             # Biến đếm tổng doanh thu từ các đơn hàng
             total_orders_revenue = 0

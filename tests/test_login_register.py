@@ -36,8 +36,8 @@ class TestLoginRegister:
             click_element(driver, By.ID, "signup")
 
             # Điền thông tin vào các trường đăng ký
-            fill_input(driver, By.ID, "fullname", "Nguyễn dVăn sadaC")  # Họ và tên
-            fill_input(driver, By.ID, "phone", "0123324235676229")  # Số điện thoại
+            fill_input(driver, By.ID, "fullname", "Nguyễn Văn ABC")  # Họ và tên
+            fill_input(driver, By.ID, "phone", "0101010101")  # Số điện thoại
             fill_input(driver, By.ID, "password", "password123")  # Mật khẩu
             fill_input(driver, By.ID, "password_confirmation", "password123")  # Nhập lại mật khẩu
             time.sleep(2)
@@ -74,9 +74,11 @@ class TestLoginRegister:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
 
             # Nhấn vào "Đăng ký"
             click_element(driver, By.ID, "signup")
+            time.sleep(2)
 
             # Điền thông tin vào các trường đăng ký (bỏ qua "Số điện thoại")
             fill_input(driver, By.ID, "fullname", "Nguyễn Văn AC")  # Họ và tên
@@ -114,17 +116,24 @@ class TestLoginRegister:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
 
             # Nhấn vào "Đăng ký"
             click_element(driver, By.ID, "signup")
             time.sleep(2)  # Thêm thời gian chờ sau khi nhấn "Đăng ký"
 
             # Điền thông tin vào các trường đăng ký (sử dụng số điện thoại đã tồn tại)
-            fill_input(driver, By.ID, "fullname", "Nguyễn Văn AC")  # Họ và tên
-            fill_input(driver, By.ID, "phone", "hgbaodev")  # Số điện thoại đã đăng ký
+            fill_input(driver, By.ID, "fullname", "Nguyễn Văn ABC")  # Họ và tên
+            time.sleep(1)
+
+            fill_input(driver, By.ID, "phone", "0123456789")  # Số điện thoại đã đăng ký
+            time.sleep(1)
+
             fill_input(driver, By.ID, "password", "123456")  # Mật khẩu
+            time.sleep(1)
+
             fill_input(driver, By.ID, "password_confirmation", "123456")  # Nhập lại mật khẩu
-            time.sleep(2)  # Thêm thời gian chờ sau khi điền các trường
+            time.sleep(1)  # Thêm thời gian chờ sau khi điền các trường
 
             # Nhấn vào checkbox
             checkbox = driver.find_element(By.ID, "checkbox-signup")
@@ -133,7 +142,7 @@ class TestLoginRegister:
 
             # Nhấn nút "Đăng ký"
             click_element(driver, By.ID, "signup-button")
-            time.sleep(2)  # Thêm thời gian chờ sau khi nhấn "Đăng ký"
+            time.sleep(3)  # Thêm thời gian chờ sau khi nhấn "Đăng ký"
 
             # Kiểm tra thông báo lỗi khi đăng ký trùng tài khoản
             check_toast_message(driver, "toast__msg", "Tài khoản đã tồn tại !")
@@ -151,16 +160,23 @@ class TestLoginRegister:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
 
             # Nhấn vào "Đăng nhập"
             click_element(driver, By.ID, "login")
+            time.sleep(2)
 
             # Điền số điện thoại và mật khẩu đúng
             fill_input(driver, By.ID, "phone-login", "0123456789")
+            time.sleep(1)
+
             fill_input(driver, By.ID, "password-login", "123456")
+            time.sleep(1)
+
 
             # Nhấn nút "Đăng nhập"
             click_element(driver, By.ID, "login-button")
+            time.sleep(2)
 
             # Kiểm tra thông báo thành công
             try:
@@ -178,6 +194,8 @@ class TestLoginRegister:
 
             # Kiểm tra hiển thị nút tài khoản cá nhân
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
+
 
             my_account_button = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']"))
@@ -200,13 +218,19 @@ class TestLoginRegister:
 
         # Nhấn vào "Đăng nhập / Đăng ký"
         click_element(driver, By.CLASS_NAME, "text-dndk")
+        time.sleep(2)
 
         # Nhấn vào "Đăng nhập"
         click_element(driver, By.ID, "login")
+        time.sleep(2)
 
         # Điền số điện thoại và mật khẩu sai
         fill_input(driver, By.ID, "phone-login", "0123456789")
+        time.sleep(1)
+
         fill_input(driver, By.ID, "password-login", "1234567")
+        time.sleep(1)
+
         # Nhấn nút "Đăng nhập"
         click_element(driver, By.ID, "login-button")
         time.sleep(2)
@@ -221,18 +245,22 @@ class TestLoginRegister:
     def test_login_empty_password(self, driver):
         # Mở trang chính
         driver.get("http://localhost/Webbanhang-main/index.html")
-        time.sleep(2)
+        time.sleep(1)
 
         # Nhấn vào "Đăng nhập / Đăng ký"
         click_element(driver, By.CLASS_NAME, "text-dndk")
+        time.sleep(1)
 
         # Nhấn vào "Đăng nhập"
         click_element(driver, By.ID, "login")
+        time.sleep(2)
 
         # Điền số điện thoại nhưng không điền mật khẩu
         fill_input(driver, By.ID, "phone-login", "hgbaodev")
+        time.sleep(1)
+
         fill_input(driver, By.ID, "password-login", "")  # Để trống mật khẩu
-        time.sleep(2)
+        time.sleep(1)
 
         # Nhấn nút "Đăng nhập"
         click_element(driver, By.ID, "login-button")
@@ -250,22 +278,26 @@ class TestLoginRegister:
 
     def test_logout(self, driver):
         driver.get("http://localhost/Webbanhang-main/index.html")
-        time.sleep(2)
+        time.sleep(1)
 
         # Nhấn vào "Đăng nhập / Đăng ký"
         click_element(driver, By.CLASS_NAME, "text-dndk")
+        time.sleep(1)
 
         # Nhấn vào "Đăng nhập"
         click_element(driver, By.ID, "login")
+        time.sleep(2)
 
         # Điền số điện thoại và mật khẩu
         fill_input(driver, By.ID, "phone-login", "hgbaodev")  # Số điện thoại
+        time.sleep(1)
+
         fill_input(driver, By.ID, "password-login", "123456")  # Mật khẩu
-        time.sleep(2)
+        time.sleep(1)
 
         # Nhấn vào nút "Đăng nhập"
         click_element(driver, By.ID, "login-button")
-        time.sleep(2)
+        time.sleep(3)
 
         # Đăng xuất
         assert logout(driver), "Đăng xuất không thành công."

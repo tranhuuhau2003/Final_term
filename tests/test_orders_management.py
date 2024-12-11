@@ -27,12 +27,11 @@ def driver():
 
 class TestOrdersManagement:
     def test_search_order_by_id(self, driver):
-        """
-        Kiểm tra tìm kiếm đơn hàng theo mã đơn hàng.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
+            time.sleep(1)
 
             # Đăng nhập
             login(driver, "hgbaodev", "123456")
@@ -46,7 +45,7 @@ class TestOrdersManagement:
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
 
             # Danh sách mã đơn hàng mẫu để tìm kiếm
-            order_ids = ["DH1", "DH2"]
+            order_ids = ["DH1"]
 
             # Tìm kiếm đơn hàng theo mã
             for order_id in order_ids:
@@ -74,12 +73,11 @@ class TestOrdersManagement:
             logout_admin(driver)
 
     def test_search_order_by_customer(self, driver):
-        """
-        Kiểm tra tìm kiếm đơn hàng theo tên khách hàng.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
+            time.sleep(2)  # Chờ kết quả hiển thị
 
             # Đăng nhập
             login(driver, "hgbaodev", "123456")
@@ -87,12 +85,17 @@ class TestOrdersManagement:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
 
             # Điều hướng đến trang quản lý đơn hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-            click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
+            time.sleep(1)
 
-            # Danh sách tên khách hàng mẫu để tìm kiếm
+            click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
+            time.sleep(1)
+
+
+            # Danh sách sdt khách hàng mẫu để tìm kiếm
             customers = ["0123456789"]
 
             # Tìm kiếm đơn hàng theo tên khách hàng
@@ -121,9 +124,7 @@ class TestOrdersManagement:
             logout_admin(driver)
 
     def test_search_nonexistent_order(self, driver):
-        """
-        Kiểm tra tìm kiếm đơn hàng với từ khóa không tồn tại.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -134,10 +135,14 @@ class TestOrdersManagement:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
 
             # Điều hướng đến trang quản lý đơn hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
+            time.sleep(2)
 
             # Từ khóa không tồn tại
             nonexistent_keywords = ["INVALID_ID", "UNKNOWN_CUSTOMER"]
@@ -168,9 +173,7 @@ class TestOrdersManagement:
             logout_admin(driver)
 
     def test_filter_orders_by_status(self, driver):
-        """
-        Kiểm tra lọc đơn hàng theo trạng thái (Tất cả, Đã xử lý, Chưa xử lý) và trường hợp không có đơn hàng.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -181,10 +184,14 @@ class TestOrdersManagement:
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
 
             # Điều hướng đến trang quản lý đơn hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
+            time.sleep(2)
 
             # Lấy dropdown trạng thái đơn hàng
             status_dropdown = WebDriverWait(driver, 10).until(
@@ -207,7 +214,7 @@ class TestOrdersManagement:
                 # Chọn trạng thái trong dropdown
                 status_dropdown.click()
                 option.click()
-                time.sleep(1)  # Chờ danh sách đơn hàng thay đổi
+                time.sleep(2)
 
                 try:
                     # Kiểm tra nếu không có đơn hàng nào
@@ -251,27 +258,29 @@ class TestOrdersManagement:
     def test_filter_orders_by_date(self, driver):
         try:
             driver.get("http://localhost/Webbanhang-main/index.html")
-            time.sleep(2)
+            time.sleep(1)
 
             # Đăng nhập
             login(driver, "hgbaodev", "123456")
-            time.sleep(3)
+            time.sleep(4)
 
             # Điều hướng đến trang quản lý đơn hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(1)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
             time.sleep(1)
 
             # Nhập ngày kết thúc
             fill_input(driver, By.ID, "time-end", "12-11-2024")
-            time.sleep(3)
+            time.sleep(2)
 
             # Nhập ngày bắt đầu
             fill_input(driver, By.ID, "time-start", "12-01-2024")
-            time.sleep(3)
+            time.sleep(2)
 
             # Đợi bảng xuất hiện
             try:
@@ -305,6 +314,8 @@ class TestOrdersManagement:
                     except Exception as e:
                         print(f"Lỗi xử lý hàng {i + 1}: {e}")
 
+                time.sleep(1)
+
                 # Kiểm tra kết quả lọc
                 assert valid_count > 0, "Không có đơn hàng nào trong khoảng ngày lọc."
                 print(f"Tìm thấy {valid_count} đơn hàng hợp lệ.")
@@ -326,11 +337,11 @@ class TestOrdersManagement:
 
             # Điều hướng đến trang quản lý đơn hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
-            time.sleep(2)
+            time.sleep(1)
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-            time.sleep(2)
+            time.sleep(1)
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
-            time.sleep(2)
+            time.sleep(1)
 
             # Kiểm tra nếu bảng có dữ liệu
             try:

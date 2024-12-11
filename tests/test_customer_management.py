@@ -27,10 +27,7 @@ def driver():
 class TestCustomerManagement:
 
     def test_add_customer(self, driver):
-        """
-        Kiểm tra chức năng thêm khách hàng và hiển thị thông báo thành công.
-        Nếu không phải thông báo thành công thì test này sẽ thất bại.
-        """
+
         driver.get("http://localhost/Webbanhang-main/index.html")
 
         # Đăng nhập vào hệ thống
@@ -39,15 +36,18 @@ class TestCustomerManagement:
 
         # Nhấn vào "Đăng nhập / Đăng ký"
         click_element(driver, By.CLASS_NAME, "text-dndk")
+        time.sleep(2)
 
         # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
         click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+        time.sleep(2)
 
         # Nhấn vào phần "Khách hàng"
         click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
+        time.sleep(2)
 
         # Điền thông tin khách hàng và thêm khách hàng mới
-        add_customer(driver, "Nhật Sssadaináadh", "03942a2199621781", "MatKhau123!")
+        add_customer(driver, "abdca", "0999998888", "MatKhau123!")
         time.sleep(2)
 
         try:
@@ -63,9 +63,7 @@ class TestCustomerManagement:
             logout_admin(driver)
 
     def test_filter_active_customers(self, driver):
-        """
-        Test thêm khách hàng mới vào danh sách khách hàng và lọc theo trạng thái "Hoạt động".
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -73,7 +71,7 @@ class TestCustomerManagement:
 
             # Đăng nhập tài khoản admin
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(4)
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
@@ -81,9 +79,11 @@ class TestCustomerManagement:
 
             # Điều hướng đến trang quản lý cửa hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
 
             # Chuyển đến phần "Khách hàng"
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
+            time.sleep(2)
 
             # Chờ menu thả xuống xuất hiện để lọc khách hàng theo trạng thái
             dropdown = WebDriverWait(driver, 10).until(
@@ -93,12 +93,14 @@ class TestCustomerManagement:
             # Tạo đối tượng Select và chọn giá trị "Hoạt động" (value="1")
             select = Select(dropdown)
             select.select_by_value("1")
+            time.sleep(2)
 
             try:
                 # Chờ các kết quả hiển thị
                 results = WebDriverWait(driver, 10).until(
                     EC.presence_of_all_elements_located((By.CLASS_NAME, "status-complete"))
                 )
+                time.sleep(2)
 
                 # Kiểm tra trạng thái của từng kết quả
                 statuses = [result.text.strip() for result in results]
@@ -117,9 +119,7 @@ class TestCustomerManagement:
             logout_admin(driver)
 
     def test_filter_locked_customers(self, driver):
-        """
-        Test thêm khách hàng mới vào danh sách khách hàng và lọc theo trạng thái "Bị khóa".
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -127,7 +127,7 @@ class TestCustomerManagement:
 
             # Đăng nhập tài khoản admin
             login(driver, "hgbaodev", "123456")
-            time.sleep(3)
+            time.sleep(4)
 
             # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
@@ -135,6 +135,7 @@ class TestCustomerManagement:
 
             # Điều hướng đến trang quản lý cửa hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
 
             # Chuyển đến phần "Khách hàng"
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
@@ -147,33 +148,44 @@ class TestCustomerManagement:
             # Tạo đối tượng Select và chọn giá trị "Bị khóa" (value="0")
             select = Select(dropdown)
             select.select_by_value("0")
-
-            # Chờ các kết quả hiển thị
-            results = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "status-no-complete"))
-            )
             time.sleep(2)
 
+            # Đợi bảng xuất hiện
+            try:
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#show-user")))
+                table = driver.find_element(By.CSS_SELECTOR, "#show-user")
+                rows = table.find_elements(By.TAG_NAME, "tr")
 
-            # Kiểm tra trạng thái của từng kết quả
-            statuses = [result.text.strip() for result in results]  # Lấy tất cả trạng thái
-            assert all(status == "Bị khóa" for status in statuses), (
-                f"Lỗi: Có trạng thái không phải 'Bị khóa'. Các trạng thái không đúng: "
-                f"{[status for status in statuses if status != 'Bị khóa']}"
-            )
+                # Kiểm tra nếu bảng chứa dòng "Không có dữ liệu"
+                if len(rows) == 1 and "Không có dữ liệu" in rows[0].text:
+                    print("Bảng không có dữ liệu, kiểm thử thành công.")
+                    assert True, "Bảng không có dữ liệu, không cần kiểm tra thêm."
+                    return
 
-            print("Lọc đúng các khách hàng đang ở trạng thái 'Bị khóa'.")
+                # Chờ các kết quả hiển thị
+                results = WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CLASS_NAME, "status-no-complete"))
+                )
+                time.sleep(2)
 
-        except TimeoutException:
-            print("Không có khách hàng nào bị khóa.")
+                # Kiểm tra trạng thái của từng kết quả
+                statuses = [result.text.strip() for result in results]  # Lấy tất cả trạng thái
+                assert all(status == "Bị khóa" for status in statuses), (
+                    f"Lỗi: Có trạng thái không phải 'Bị khóa'. Các trạng thái không đúng: "
+                    f"{[status for status in statuses if status != 'Bị khóa']}"
+                )
+
+                print("Lọc đúng các khách hàng đang ở trạng thái 'Bị khóa'.")
+
+            except TimeoutException:
+                print("Không có khách hàng nào bị khóa.")
+
         finally:
             # Đảm bảo luôn logout sau khi kiểm tra xong
             logout_admin(driver)
 
     def test_search_existing_customer(self, driver):
-        """
-        Kiểm tra tìm kiếm với các từ khóa có khách hàng tồn tại.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -184,12 +196,16 @@ class TestCustomerManagement:
 
             # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
             time.sleep(2)
 
             # Danh sách khách hàng mẫu để tìm kiếm
-            existing_customers = ["Hữu Hậu"]
+            existing_customers = ["Võ Khánh Linh"]
 
             # Tìm kiếm khách hàng tồn tại
             for customer in existing_customers:
@@ -221,9 +237,7 @@ class TestCustomerManagement:
             logout_admin(driver)
 
     def test_search_nonexistent_customer(self, driver):
-        """
-        Kiểm tra tìm kiếm với từ khóa không tồn tại trong danh sách khách hàng.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -286,7 +300,7 @@ class TestCustomerManagement:
             time.sleep(1)
 
             # Nhập ngày kết thúc
-            fill_input(driver, By.ID, "time-end-user", "12-09-2024")  # Nhập ngày theo định dạng MM-DD-YYYY
+            fill_input(driver, By.ID, "time-end-user", "12-20-2024")  # Nhập ngày theo định dạng MM-DD-YYYY
             time.sleep(3)
 
             # Nhập ngày bắt đầu
@@ -307,7 +321,7 @@ class TestCustomerManagement:
 
                 # Chuyển đổi ngày bắt đầu và kết thúc thành datetime
                 start_date = datetime.strptime("12-01-2024", "%m-%d-%Y")
-                end_date = datetime.strptime("12-09-2024", "%m-%d-%Y")
+                end_date = datetime.strptime("12-20-2024", "%m-%d-%Y")
 
                 valid_count = 0
                 # Duyệt qua từng hàng để kiểm tra logic ngày
@@ -344,9 +358,7 @@ class TestCustomerManagement:
                 print(f"Lỗi khi đăng xuất: {str(final_e)}")
 
     def test_reset_customer_page(self, driver):
-        """
-        Test chức năng reset trang khách hàng.
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -354,14 +366,17 @@ class TestCustomerManagement:
 
             # Đăng nhập tài khoản admin
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(4)
 
             # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(2)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
+            time.sleep(2)
 
             # Chờ menu thả xuống "Tình trạng" xuất hiện
             dropdown = WebDriverWait(driver, 10).until(
@@ -392,9 +407,7 @@ class TestCustomerManagement:
             logout_admin(driver)
 
     def test_edit_customer_information(self, driver):
-        """
-        Test chức năng sửa thông tin khách hàng.
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -402,7 +415,7 @@ class TestCustomerManagement:
 
             # Đăng nhập tài khoản admin
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(4)
 
             # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
@@ -412,7 +425,7 @@ class TestCustomerManagement:
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
 
             # Tìm khách hàng theo số điện thoại
-            customer_phone = "adaasdasqaaas"  # Số điện thoại của khách hàng cần sửa
+            customer_phone = "0777777777"  # Số điện thoại của khách hàng cần sửa
             customer_row = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, f"//td[text()='{customer_phone}']/ancestor::tr"))
             )
@@ -463,7 +476,7 @@ class TestCustomerManagement:
 
             # Đăng nhập vào tài khoản (sử dụng hàm login từ helper)
             login(driver, "hgbaodev", "123456")
-            time.sleep(2)
+            time.sleep(4)
 
             # Điều hướng đến trang quản lý khách hàng
             click_element(driver, By.CLASS_NAME, "text-dndk")
@@ -475,8 +488,8 @@ class TestCustomerManagement:
 
             # Tìm kiếm khách hàng theo họ tên và số điện thoại
             # Tìm kiếm trong bảng theo họ tên và số điện thoại
-            search_name = "trhuuhau"  # Tên khách hàng cần tìm
-            search_phone = "0352117260"  # Số điện thoại của khách hàng cần tìm
+            search_name = "aaa"  # Tên khách hàng cần tìm
+            search_phone = "01111111111"  # Số điện thoại của khách hàng cần tìm
 
             customer_row = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH,

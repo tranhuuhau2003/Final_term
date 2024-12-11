@@ -52,7 +52,6 @@ class TestShoppingcartCheckout:
             # Đảm bảo đăng xuất sau khi kiểm thử
             logout(driver)
 
-
     def test_increase_quantity(self, driver):
         try:
             # Mở trang chính
@@ -395,7 +394,6 @@ class TestShoppingcartCheckout:
 
     def test_pay_until_pick_up(self, driver):
         driver.get("http://localhost/Webbanhang-main/index.html")
-        print("Trang đã được tải.")
 
         # Đăng nhập vào hệ thống
         login(driver, "hgbaodev", "123456")

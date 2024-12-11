@@ -24,12 +24,10 @@ def driver():
 class TestNavigation:
 
     def test_navigation_menu(self, driver):
-        """
-        Kiểm tra chức năng điều hướng qua các mục trong menu.
-        Đảm bảo rằng mỗi mục hiển thị sản phẩm hoặc dòng chữ "Tìm kiếm không có kết quả".
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
+        time.sleep(1)
 
         # Chờ menu xuất hiện trước khi tiếp tục
         try:
@@ -105,12 +103,9 @@ class TestNavigation:
         print("Kiểm tra điều hướng menu thành công!")
 
     def test_pagination_navigation(self, driver):
-        """
-        Kiểm tra điều hướng giữa các phân trang. Đảm bảo rằng mỗi trang hiển thị sản phẩm.
-        Cuộn từ từ, nhấn vào trang kế tiếp cho đến khi đến trang cuối cùng.
-        """
+
         driver.get("http://localhost/Webbanhang-main/index.html")
-        time.sleep(2)
+        time.sleep(1)
 
         # Tìm các nút phân trang
         while True:
@@ -169,6 +164,7 @@ class TestNavigation:
 
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
+        time.sleep(1)
 
         # Cuộn xuống cuối trang để các nút hiện trên màn hình
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -198,6 +194,7 @@ class TestNavigation:
 
                 # Nhấp vào liên kết
                 link.click()
+                time.sleep(2)
 
                 # Đợi URL thay đổi hoặc timeout
                 try:
@@ -241,6 +238,7 @@ class TestNavigation:
 
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
+        time.sleep(1)
 
         # Lưu URL ban đầu
         initial_url = driver.current_url
@@ -272,6 +270,7 @@ class TestNavigation:
 
                 # Nhấp vào liên kết
                 link_item.click()
+                time.sleep(2)
 
                 # Đợi URL thay đổi hoặc timeout
                 try:
@@ -306,6 +305,7 @@ class TestNavigation:
         # Mở trang web
         global menu_item_text
         driver.get("http://localhost/Webbanhang-main/index.html")
+        time.sleep(1)
 
         # Lấy URL ban đầu
         initial_url = driver.current_url

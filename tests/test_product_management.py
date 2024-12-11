@@ -36,37 +36,46 @@ class TestProductManagement:
 
         # Nhấn vào "Đăng nhập / Đăng ký"
         click_element(driver, By.CLASS_NAME, "text-dndk")
+        time.sleep(1)
 
         # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
         click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+        time.sleep(1)
 
         # Mở danh mục sản phẩm
         click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
-        time.sleep(1)
+        time.sleep(2)
 
         # Nhấn nút thêm món mới
         add_product_button = driver.find_element(By.ID, "btn-add-product")
         add_product_button.click()
+        time.sleep(2)
 
         # Điền các thông tin vào form thêm món
         product_name_input = driver.find_element(By.ID, "ten-mon")
         product_name_input.send_keys("Món mới")
+        time.sleep(1)
 
         category_select = driver.find_element(By.ID, "chon-mon")
         category_select.click()
+        time.sleep(1)
+
         category_option = driver.find_element(By.XPATH, "//option[contains(text(), 'Món chay')]")
         category_option.click()
+        time.sleep(1)
 
         price_input = driver.find_element(By.ID, "gia-moi")
         price_input.send_keys("100000")
+        time.sleep(1)
 
         description_input = driver.find_element(By.ID, "mo-ta")
         description_input.send_keys("Mô tả món ăn mới")
+        time.sleep(1)
 
         # Nhấn nút thêm món
         add_product_confirm_button = driver.find_element(By.ID, "add-product-button")
         add_product_confirm_button.click()
-        time.sleep(2)
+        time.sleep(4)
 
         # Kiểm tra thông báo toast
         check_toast_message(driver, "toast__msg", "Thêm sản phẩm thành công!")
@@ -88,9 +97,7 @@ class TestProductManagement:
         assert product_found, "Sản phẩm chưa được thêm vào danh sách"
 
     def test_edit_product_information(self, driver):
-        """
-        Test chức năng sửa thông tin sản phẩm.
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -101,12 +108,16 @@ class TestProductManagement:
 
             # Điều hướng đến trang quản lý sản phẩm
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(1)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
+            time.sleep(1)
 
             # Tìm sản phẩm cần sửa (dựa vào tên sản phẩm)
-            product_name = "carrotne"  # Tên sản phẩm cần sửa
+            product_name = "Rau xào ngũ sắc"  # Tên sản phẩm cần sửa
             product_row = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, f"//h4[text()='{product_name}']/ancestor::div[@class='list']"))
             )
@@ -117,8 +128,8 @@ class TestProductManagement:
             time.sleep(2)
 
             # Chỉnh sửa thông tin sản phẩm
-            new_name = "carrotne"  # Tên mới
-            new_description = "Món ăn chayyyyy ngon"  # Mô tả mới
+            new_name = "Rau xào ngũ sắc"
+            new_description = "Món ăn ngon"  # Mô tả mới
             new_category = "Món chay"  # Chọn loại món
             new_price = "30000"  # Giá mới
 
@@ -150,7 +161,7 @@ class TestProductManagement:
             # Lưu thay đổi
             save_button = driver.find_element(By.ID, "update-product-button")
             save_button.click()
-            time.sleep(2)
+            time.sleep(3)
 
             # Kiểm tra thông báo từ toast__msg
             check_toast_message(driver, "toast__msg", "Sửa sản phẩm thành công!")
@@ -162,7 +173,7 @@ class TestProductManagement:
             )
             search_input.clear()  # Xóa nội dung cũ nếu có
             search_input.send_keys(new_name)  # Nhập từ khóa tìm kiếm
-            time.sleep(2)  # Chờ kích hoạt sự kiện tìm kiếm
+            time.sleep(3)  # Chờ kích hoạt sự kiện tìm kiếm
 
             # Kiểm tra kết quả tìm kiếm
             search_results = WebDriverWait(driver, 10).until(
@@ -202,8 +213,11 @@ class TestProductManagement:
 
             # Điều hướng đến trang quản lý sản phẩm
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(1)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
             time.sleep(1)
 
@@ -247,9 +261,7 @@ class TestProductManagement:
             logout_admin(driver)
 
     def test_search_existing_product(self, driver):
-        """
-        Kiểm tra tìm kiếm với các từ khóa có sản phẩm tồn tại.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -304,9 +316,7 @@ class TestProductManagement:
             logout_admin(driver)
 
     def test_search_nonexistent_product(self, driver):
-        """
-        Kiểm tra tìm kiếm với từ khóa không có sản phẩm tồn tại.
-        """
+
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -321,12 +331,14 @@ class TestProductManagement:
 
             # Điều hướng đến trang quản lý cửa hàng
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(1)
 
             # Chuyển đến phần "Sản phẩm"
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']"))
             )
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
+            time.sleep(1)
 
             # Từ khóa tìm kiếm không tồn tại
             nonexistent_keywords = ["bún mắm", "cơm cuộn"]
@@ -419,9 +431,7 @@ class TestProductManagement:
         print("Kiểm thử lọc sản phẩm theo danh mục thành công.")
 
     def test_reset_product_page(self, driver):
-        """
-        Test chức năng làm mới trang sản phẩm.
-        """
+
         try:
             # Truy cập trang web
             driver.get("http://localhost/Webbanhang-main/index.html")
@@ -432,8 +442,11 @@ class TestProductManagement:
 
             # Điều hướng đến trang quản lý sản phẩm
             click_element(driver, By.CLASS_NAME, "text-dndk")
+            time.sleep(1)
 
             click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+            time.sleep(1)
+
             click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
             time.sleep(2)
 

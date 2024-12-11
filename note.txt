@@ -1,15 +1,6 @@
-******vì dùng localstorage nên chạy test với profile chỉ định để dữ liệu được lưu sau mỗi lần chạy code
-mỗi máy có mỗi profile khác nhau, để chạy:
-b1: mở chrome nhập chrome://version/
-b2: copy Profile Path tại dòng Profile Path	C:\Users\user\AppData\Local\Google\Chrome\User Data\Default
-b3: thay vào  profile_path = "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data" ở def driver của mỗi file test
-
-******có sửa code phần logout của source nên tải lại source
-
-******code này chạy trên pycharm, xampp, thư mục source lưu trong xampp: htdocs/Webbanhang-main
-
-***còn 2 test chưa xong
-test quay về trang chủ, sửa test ngày tháng
 
 ********LINK DOWNLOAD SOURCE CODE***********
 https://drive.google.com/drive/folders/1wTu4I1VI4iXy0AyflBQIYd7-jKP99I1t?usp=sharing
+
+
+

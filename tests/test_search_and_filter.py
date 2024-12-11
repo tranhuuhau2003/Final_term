@@ -102,16 +102,14 @@ class TestSearchAndFilter:
                 f"Không tìm thấy thông báo phù hợp khi tìm kiếm từ khóa không tồn tại '{nonexistent_keyword}'. Lỗi: {e}")
 
     def test_filter_product(self, driver):
-        """
-        Kiểm tra chức năng lọc sản phẩm theo phân loại trong combobox và kiểm tra số lượng sản phẩm.
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(2)
 
         # Nhấn vào nút Lọc
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
-        time.sleep(1)
+        time.sleep(2)
 
         # Lấy combobox và danh sách các tùy chọn
         combobox = driver.find_element(By.ID, "advanced-search-category-select")
@@ -185,9 +183,7 @@ class TestSearchAndFilter:
         print("Kiểm tra lọc sản phẩm hoàn tất!")
 
     def test_filter_product_price(self, driver):
-        """
-        Kiểm tra chức năng lọc sản phẩm theo giá, đảm bảo rằng tất cả sản phẩm hiển thị có giá trong khoảng đã nhập.
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
@@ -213,7 +209,7 @@ class TestSearchAndFilter:
         # Nhấn nút lọc giá
         price_filter_btn = driver.find_element(By.ID, "advanced-search-price-btn")
         price_filter_btn.click()
-        time.sleep(5)
+        time.sleep(3)
 
         # Lấy danh sách các sản phẩm hiển thị
         products_section = driver.find_element(By.ID, "home-products")
@@ -242,9 +238,7 @@ class TestSearchAndFilter:
         print("Kiểm tra lọc sản phẩm theo giá thành công!")
 
     def test_sort_by_price_ascending(self, driver):
-        """
-        Kiểm tra chức năng sắp xếp sản phẩm theo giá từ thấp đến cao.
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)  # Thêm thời gian chờ lâu hơn để trang tải hoàn toàn
@@ -339,9 +333,7 @@ class TestSearchAndFilter:
         print("Kiểm tra sắp xếp sản phẩm theo giá từ thấp đến cao thành công!")
 
     def test_sort_by_price_descending(self, driver):
-        """
-        Kiểm tra chức năng sắp xếp sản phẩm theo giá từ cao đến thấp.
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)  # Thêm thời gian chờ lâu hơn để trang tải hoàn toàn
@@ -353,7 +345,7 @@ class TestSearchAndFilter:
         # Nhấn nút sắp xếp theo giá từ cao đến thấp
         sort_descending_btn = driver.find_element(By.ID, "sort-descending")
         sort_descending_btn.click()
-        time.sleep(1)  # Thêm thời gian chờ để sắp xếp xong trước khi lấy sản phẩm
+        time.sleep(2)
 
         # Biến lưu giá của sản phẩm trên mỗi trang
         prev_price = float('inf')  # Sử dụng giá ban đầu là vô cùng lớn
@@ -436,15 +428,7 @@ class TestSearchAndFilter:
         print("Kiểm tra sắp xếp sản phẩm theo giá từ cao đến thấp thành công!")
 
     def test_filter_and_sort_products(self, driver):
-        """
-        Kiểm tra chức năng lọc và sắp xếp sản phẩm theo giá, bao gồm:
-        - Lọc sản phẩm theo giá.
-        - Sắp xếp sản phẩm theo giá từ thấp đến cao.
-        - Nhấn nút reset để làm mới bộ lọc.
-        - Sắp xếp sản phẩm theo giá từ cao đến thấp.
-        - Nhấn nút reset một lần nữa.
-        - Đóng phần lọc.
-        """
+
         # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(2)

@@ -1,2 +1,0 @@
-} = require('L:\\KTPM\\Final_term\\Webbanhang-main\\js\\checkout.js');
-npx jest modal.test.js
