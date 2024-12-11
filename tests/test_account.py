@@ -29,7 +29,7 @@ class TestAccount:
             driver.get("http://localhost/Webbanhang-main/index.html")
 
             # Gọi hàm login để đăng nhập
-            login(driver, "hgbaodev", "123456")
+            login(driver, "0123456789", "123456")
             time.sleep(3)
 
             # Nhấn vào "Đăng nhập / Đăng ký"
@@ -91,7 +91,7 @@ class TestAccount:
             fill_input(driver, By.ID, "password-comfirm-info", "Anhpham2@.")
 
             click_element(driver, By.ID, "save-password")
-            time.sleep(1)
+            time.sleep(2)
 
             # Đăng xuất
             logout(driver)
