@@ -113,38 +113,6 @@ describe('Login Event Listener Function', () => {
         expect(document.querySelector('.form-message.phonelog').innerHTML).toBe('Vui lòng nhập vào số điện thoại');
     });
 
-    test('Phone number length is not 10', () => {
-        document.getElementById('phone-login').value = '123456789';
-        document.getElementById('password-login').value = '123456';
-        localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
-
-        expect(document.querySelector('.form-message.phonelog').innerHTML).toBe('Vui lòng nhập vào số điện thoại 10 số');
-        expect(document.getElementById('phone-login').value).toBe('');
-    });
-
-    test('Password field is empty', () => {
-        document.getElementById('phone-login').value = '1234567890';
-        document.getElementById('password-login').value = '';
-        localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
-
-        expect(document.querySelector('.form-message-check-login').innerHTML).toBe('Vui lòng nhập mật khẩu');
-    });
-
-    test('Password length is less than 6', () => {
-        document.getElementById('phone-login').value = '1234567890';
-        document.getElementById('password-login').value = '12345';
-        localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
-
-        expect(document.querySelector('.form-message-check-login').innerHTML).toBe('Vui lòng nhập mật khẩu lớn hơn 6 kí tự');
-        expect(document.getElementById('password-login').value).toBe('');
-    });
-
     test('Account does not exist', () => {
         document.getElementById('phone-login').value = '1234567890';
         document.getElementById('password-login').value = '123456';

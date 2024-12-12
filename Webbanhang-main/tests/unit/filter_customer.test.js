@@ -189,6 +189,7 @@ describe('showUser Function', () => {
         expect(document.getElementById('show-user').innerHTML).toContain('Jane Smith');
         expect(document.getElementById('show-user').innerHTML).not.toContain('John Doe');
     });
+
     test('should filter users by join date range', () => {
         document.getElementById('time-start-user').value = '2022-01-01';
         document.getElementById('time-end-user').value = '2022-31-12';
@@ -230,19 +231,20 @@ describe('showUser Function', () => {
         expect(document.getElementById('show-user').innerHTML).toContain('John Doe');
         expect(document.getElementById('show-user').innerHTML).not.toContain('Jane Smith');
     });
-test('should filter users by join date range', () => {
-    document.getElementById('time-start-user').value = '2022-01-01';
-    document.getElementById('time-end-user').value = '2022-12-31';
-    localStorage.setItem("accounts", JSON.stringify([
-        { fullname: 'John Doe', phone: '1234567890', join: '2022-06-15', status: 1, userType: 0 },
-        { fullname: 'Jane Smith', phone: '0987654321', join: '2023-01-10', status: 0, userType: 0 }
-    ]));
 
-    showUser();
+    test('should filter users by join date range', () => {
+        document.getElementById('time-start-user').value = '2022-01-01';
+        document.getElementById('time-end-user').value = '2022-12-31';
+        localStorage.setItem("accounts", JSON.stringify([
+            { fullname: 'John Doe', phone: '1234567890', join: '2022-06-15', status: 1, userType: 0 },
+            { fullname: 'Jane Smith', phone: '0987654321', join: '2023-01-10', status: 0, userType: 0 }
+        ]));
 
-    expect(document.getElementById('show-user').innerHTML).toContain('John Doe');
-    expect(document.getElementById('show-user').innerHTML).not.toContain('Jane Smith');
-});
+        showUser();
+
+        expect(document.getElementById('show-user').innerHTML).toContain('John Doe');
+        expect(document.getElementById('show-user').innerHTML).not.toContain('Jane Smith');
+    });
 
 
 });

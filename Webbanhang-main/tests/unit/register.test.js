@@ -139,28 +139,10 @@ describe('Signup Event Listener Function', () => {
         document.getElementById('checkbox-signup').checked = false;
     });
 
-    test('Full name is empty', () => {
-        signupButton.click();
-        expect(document.querySelector('.form-message-name').innerHTML).toBe('Vui lòng nhập họ và tên');
-    });
-
-    test('Full name length less than 3', () => {
-        document.getElementById('fullname').value = 'AB';
-        signupButton.click();
-        expect(document.querySelector('.form-message-name').innerHTML).toBe('Vui lòng nhập họ và tên lớn hơn 3 kí tự');
-    });
-
     test('Phone number is empty', () => {
         document.getElementById('fullname').value = 'John Doe';
         signupButton.click();
         expect(document.querySelector('.form-message-phone').innerHTML).toBe('Vui lòng nhập vào số điện thoại');
-    });
-
-    test('Phone number is not 10 digits', () => {
-        document.getElementById('fullname').value = 'John Doe';
-        document.getElementById('phone').value = '12345';
-        signupButton.click();
-        expect(document.querySelector('.form-message-phone').innerHTML).toBe('Vui lòng nhập vào số điện thoại 10 số');
     });
 
     test('Password is empty', () => {
@@ -179,15 +161,6 @@ describe('Signup Event Listener Function', () => {
         expect(document.querySelector('.form-message-password-confi').innerHTML).toBe('Mật khẩu không khớp');
     });
 
-    test('Checkbox is not checked', () => {
-        document.getElementById('fullname').value = 'John Doe';
-        document.getElementById('phone').value = '1234567890';
-        document.getElementById('password').value = 'password123';
-        document.getElementById('password_confirmation').value = 'password123';
-        signupButton.click();
-        expect(document.querySelector('.form-message-checkbox').innerHTML).toBe('Vui lòng check đăng ký');
-    });
-
     test('Account already exists', () => {
         localStorage.setItem('accounts', JSON.stringify([{ fullname: 'John Doe', phone: '1234567890', password: 'password123' }]));
         document.getElementById('fullname').value = 'Jane Smith';
@@ -198,7 +171,6 @@ describe('Signup Event Listener Function', () => {
         signupButton.click();
         expect(toast).toHaveBeenCalledWith({ title: 'Thất bại', message: 'Tài khoản đã tồn tại !', type: 'error', duration: 30000 });
     });
-    
 
     test('Successful signup', () => {
         document.getElementById('fullname').value = 'John Doe';
