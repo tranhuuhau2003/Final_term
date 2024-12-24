@@ -21,97 +21,88 @@ def driver():
     yield driver  # Cung cấp driver cho test
     close_driver(driver)  # Đóng driver sau khi test xong
 
-
 class TestAccount:
 
     def test_change_account_information(self, driver):
         try:
             driver.get("http://localhost/Webbanhang-main/index.html")
 
-            # Gọi hàm login để đăng nhập
             login(driver, "0123456789", "123456")
             time.sleep(3)
 
-            # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
 
-            # Nhấn vào "Tài khoản của tôi"
             click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
             time.sleep(2)
 
-            # Cập nhật địa chỉ giao hàng
             address_input = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "infoaddress"))
             )
-            address_input.clear()  # Xóa địa chỉ cũ
+            address_input.clear()
             address_input.click()
             address_input.send_keys("123 Đường ABC, Quận 1, TP.HCM")
-            time.sleep(2)  # Thêm thời gian chờ sau khi nhập địa chỉ
+            time.sleep(2)
 
-            # Nhấn "Lưu thay đổi"
             click_element(driver, By.ID, "save-info-user")
-            time.sleep(3)  # Chờ thông tin được lưu
+            time.sleep(1)
 
-            # Kiểm tra thông báo thành công
-            check_toast_message(driver, "toast__msg", "Cập nhật thông tin thành công !")
+            result = check_toast_message(driver, "toast__msg", "Cập nhật thông tin thành công !")
+            assert result, "Không nhận được thông báo 'Cập nhật thông tin thành công!' hoặc thông báo không đúng."
             print("Kiểm thử thay đổi thông tin tài khoản thành công!")
 
         except Exception as e:
             assert False, f"Đã xảy ra lỗi trong quá trình kiểm thử: {str(e)}"
 
         finally:
-            # Gọi hàm logout để đảm bảo trạng thái sạch
             logout(driver)
 
     def test_change_password(self, driver):
         driver.get("http://localhost/Webbanhang-main/index.html")
 
         try:
-            # Đăng nhập
             login(driver, "0123456789", "123456")
-            time.sleep(4)  # Chờ đăng nhập hoàn tất
+            time.sleep(4)
 
-            # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(2)
 
-            # Nhấn vào "Tài khoản của tôi"
             click_element(driver, By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']")
             time.sleep(2)
 
-            # Điền mật khẩu hiện tại
             current_password_input = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, "password-cur-info"))
             )
             current_password_input.send_keys("123456")
 
-            # Điền mật khẩu mới và xác nhận
             fill_input(driver, By.ID, "password-after-info", "Anhpham2@.")
             fill_input(driver, By.ID, "password-comfirm-info", "Anhpham2@.")
 
             click_element(driver, By.ID, "save-password")
             time.sleep(2)
 
-            # Đăng xuất
-            logout(driver)
-            time.sleep(1)  # Chờ đăng xuất hoàn tất
+            result = check_toast_message(driver, "toast__msg", "Đổi mật khẩu thành công !")
+            assert result, "Không nhận được thông báo 'Đổi mật khẩu thành công!' hoặc thông báo không đúng."
+            print("Đổi mật khẩu thành công.")
 
-            # Đăng nhập lại với mật khẩu mới
+            logout_success = logout(driver)
+            assert logout_success, "Đăng xuất không thành công."
+            time.sleep(1)
+
             login(driver, "0123456789", "Anhpham2@.")
-            time.sleep(2)  # Chờ đăng nhập hoàn tất
+            time.sleep(2)
 
-            # Nhấn vào "Đăng nhập / Đăng ký"
             click_element(driver, By.CLASS_NAME, "text-dndk")
             time.sleep(1)
 
-            # Kiểm tra đăng nhập thành công
             my_account_button = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "a[href='javascript:;'][onclick='myAccount()']"))
             )
-            assert my_account_button.is_displayed(), "Đăng nhập thất bại, không thấy 'Tài khoản của tôi'"
+            assert my_account_button.is_displayed(), "Đăng nhập thất bại, không thấy 'Tài khoản của tôi'."
             print("Đăng nhập lại thành công, mật khẩu đã được thay đổi.")
 
+        except Exception as e:
+            assert False, f"Đã xảy ra lỗi trong quá trình kiểm thử: {str(e)}"
+
         finally:
-            # Luôn đảm bảo đăng xuất
             logout(driver)

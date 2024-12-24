@@ -52,7 +52,8 @@ class TestCustomerManagement:
 
         try:
             # Kiểm tra thông báo từ toast__msg
-            check_toast_message(driver, "toast__msg", "Tạo thành công tài khoản !")
+            result = check_toast_message(driver, "toast__msg", "Tạo thành công tài khoản !")
+            assert result, "Không nhận được thông báo Tạo thành công tài khoản ."
             print("Thêm khách hàng thành công!")
         except AssertionError:
             # Nếu không phải thông báo thành công, kiểm tra thất bại
@@ -237,7 +238,6 @@ class TestCustomerManagement:
             logout_admin(driver)
 
     def test_search_nonexistent_customer(self, driver):
-
         try:
             # Mở trang web
             driver.get("http://localhost/Webbanhang-main/index.html")

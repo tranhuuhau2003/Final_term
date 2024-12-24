@@ -5,7 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, check_cart_quantity, scroll_to_element, check_filtered_products, check_sorted_products
+from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, check_cart_quantity, scroll_to_element, check_filtered_products, check_sorted_products, \
+scroll_page, check_products_on_page, navigate_to_next_page
 from Final_term.utils.driver_helper import init_driver, close_driver  # Import từ driver_helper
 from selenium.webdriver.common.by import By
 
@@ -13,23 +14,17 @@ from selenium.webdriver.common.by import By
 
 @pytest.fixture
 def driver():
-    """
-    Khởi tạo WebDriver và đóng WebDriver sau khi test xong.
-    """
-    driver = init_driver()  # Gọi hàm khởi tạo driver từ file driver_helper
-    yield driver  # Cung cấp driver cho test
-    close_driver(driver)  # Đóng driver sau khi test xong
+    driver = init_driver()
+    yield driver
+    close_driver(driver)
 
 
 class TestNavigation:
 
     def test_navigation_menu(self, driver):
-
-        # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
 
-        # Chờ menu xuất hiện trước khi tiếp tục
         try:
             menu = WebDriverWait(driver, 10).until(
                 EC.visibility_of_element_located((By.CSS_SELECTOR, ".menu-list"))
@@ -37,63 +32,41 @@ class TestNavigation:
         except TimeoutException:
             print("Không tìm thấy menu hoặc menu không hiển thị.")
             return
-
         time.sleep(2)
-
-        # Đếm số lượng mục trong menu
         menu_items_count = len(driver.find_elements(By.CSS_SELECTOR, ".menu-list-item"))
-
-        # Duyệt qua từng mục trong menu theo chỉ số
         for index in range(menu_items_count):
-            # Lấy lại danh sách menu và chọn phần tử hiện tại
             menu_items = driver.find_elements(By.CSS_SELECTOR, ".menu-list-item")
             item = menu_items[index]
-
-            # Lấy tên mục để in ra log
             menu_name = item.text.strip()
-            print(f"Đang kiểm tra mục: {menu_name}")
 
-            # Cuộn phần tử vào tầm nhìn của cửa sổ trình duyệt
             driver.execute_script("arguments[0].scrollIntoView();", item)
-            time.sleep(1)  # Đợi một chút sau khi cuộn xong
+            time.sleep(1)
 
-            # Nhấn vào mục
             item.click()
-            time.sleep(3)  # Chờ để trang hiển thị nội dung
+            time.sleep(3)
 
-            # Cuộn lên 200px sau khi nhấn vào mục
             driver.execute_script("window.scrollBy(0, -200);")
-            time.sleep(1)  # Đợi một chút để cuộn xong
+            time.sleep(1)
 
-            # Kiểm tra hiển thị sản phẩm hoặc thông báo "Tìm kiếm không có kết quả"
             try:
-                # Tìm danh sách sản phẩm
                 products_section = driver.find_element(By.ID, "home-products")
                 products = products_section.find_elements(By.CLASS_NAME, "card-product")
 
-                # Kiểm tra nếu có sản phẩm
                 if len(products) > 0:
                     print(f"Mục '{menu_name}' hiển thị {len(products)} sản phẩm.")
                 else:
-                    # Kiểm tra thông báo "Tìm kiếm không có kết quả"
                     no_results_message = driver.find_element(By.CSS_SELECTOR, ".home-products .no-result-h")
-                    assert "Tìm kiếm không có kết quả" in no_results_message.text, \
-                        f"Mục '{menu_name}' không hiển thị sản phẩm và không có thông báo kết quả tìm kiếm!"
-                    print(f"Mục '{menu_name}' không có sản phẩm, nhưng hiển thị thông báo 'Tìm kiếm không có kết quả'.")
+                    assert "Tìm kiếm không có kết quả" in no_results_message.text, f"Mục '{menu_name}' không hiển thị sản phẩm và không có thông báo kết quả tìm kiếm!"
+                    print(f"Mục '{menu_name}' không có sản phẩm.")
 
             except Exception as e:
                 print(f"Lỗi: {str(e)}")
                 assert False, f"Không thể kiểm tra mục '{menu_name}'!"
 
-            # Nếu menu bị ẩn sau khi chọn, cuộn lên để hiển thị lại
             try:
-                # Lấy lại phần tử menu sau mỗi lần nhấn vào mục
                 menu = driver.find_element(By.CSS_SELECTOR, ".menu-list")
                 menu_display = menu.value_of_css_property("display")
-
                 if menu_display == "none":
-                    print("Menu bị ẩn, đang cuộn lên để hiển thị lại...")
-                    # Cuộn lên để menu hiển thị lại
                     driver.execute_script("window.scrollBy(0, -200);")
                     time.sleep(2)
             except Exception as e:
@@ -103,61 +76,29 @@ class TestNavigation:
         print("Kiểm tra điều hướng menu thành công!")
 
     def test_pagination_navigation(self, driver):
-
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
 
-        # Tìm các nút phân trang
         while True:
             try:
-                # Cuộn đến 2/3 chiều cao của trang sau mỗi lần kiểm tra sản phẩm
-                scroll_height = driver.execute_script("return document.body.scrollHeight")
-                scroll_position = scroll_height * 2 / 3
-                driver.execute_script(f"window.scrollTo(0, {scroll_position});")
-                time.sleep(2)
+                # Cuộn đến 2/3 chiều cao của trang
+                scroll_page(driver)
 
                 # Kiểm tra sản phẩm trên trang hiện tại
-                products_section = driver.find_element(By.ID, "home-products")
-                products = products_section.find_elements(By.CLASS_NAME, "card-product")
+                check_products_on_page(driver)
 
-                # Assert nếu trang không có sản phẩm
-                assert len(products) > 0, "Không có sản phẩm trên trang hiện tại!"  # Kiểm tra nếu có sản phẩm
-                print(f"Trang hiện tại có {len(products)} sản phẩm.")  # In số lượng sản phẩm nếu có
-
-                # Tìm các nút phân trang
-                pagination = driver.find_element(By.CLASS_NAME, "page-nav-list")
-                pages = pagination.find_elements(By.CLASS_NAME, "page-nav-item")
-
-                # Nếu có nhiều hơn một trang, kiểm tra và click vào trang kế tiếp
-                active_page = pagination.find_element(By.CLASS_NAME, "active")  # Trang hiện tại
-                current_page_number = int(active_page.find_element(By.TAG_NAME, "a").text)  # Số trang hiện tại
-                next_page_number = current_page_number + 1  # Trang kế tiếp là trang hiện tại + 1
-                next_page = None
-
-                # Tìm trang kế tiếp
-                for page in pages:
-                    try:
-                        page_number = int(page.find_element(By.TAG_NAME, "a").text)
-                        if page_number == next_page_number:  # Tìm trang có số trang = trang hiện tại + 1
-                            next_page = page
-                            break
-                    except ValueError:
-                        continue
-
-                if next_page:
-                    next_page.click()  # Click vào trang kế tiếp
-                    time.sleep(2)
-
-                else:
-                    # Nếu không còn trang kế tiếp
+                # Tìm nút phân trang và điều hướng
+                if not navigate_to_next_page(driver):
                     print("Đã đến trang cuối cùng.")
-                    break  # Dừng nếu không có trang kế tiếp
+                    break
 
             except Exception as e:
                 print(f"Lỗi: {str(e)}")
                 break
 
         assert True, "Tất cả các trang đã được kiểm tra thành công!"
+
+
 
     # fail-các nút liên kết đến mạng xã hội không hoạt động
     def test_social_links_navigation(self, driver):

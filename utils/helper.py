@@ -1,5 +1,7 @@
 import random
 import time
+
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -24,34 +26,87 @@ def fill_input(driver, by, value, input_value):
     # time.sleep(1)
 
 
-def check_toast_message(driver, message_class, expected_text):
+def clear_and_send_keys(driver, by, locator, input_value):
     """
-    Kiểm tra thông báo (toast message) xuất hiện và nội dung có khớp hay không.
+    Xóa nội dung trong input và nhập giá trị mới vào trường tìm kiếm.
 
-    Parameters:
-        driver: Đối tượng WebDriver của Selenium.
-        message_class: Tên class của thông báo cần kiểm tra.
-        expected_text: Văn bản mong đợi trong thông báo.
+    Args:
+        driver (WebDriver): Đối tượng WebDriver.
+        by (By): Cách để định vị input (vd: By.ID, By.XPATH).
+        locator (str): Giá trị locator của input tìm kiếm.
+        input_value (str): Giá trị cần nhập vào trường tìm kiếm.
+    """
+    # Tìm trường input tìm kiếm
+    search_input = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((by, locator))
+    )
+
+    # Xóa nội dung cũ nếu có
+    search_input.clear()
+
+    # Nhập từ khóa tìm kiếm mới
+    search_input.send_keys(input_value)
+    time.sleep(3)  # Chờ để sự kiện tìm kiếm kích hoạt
+
+
+def select_dropdown_option(driver, by, locator, option_text):
+    """
+    Chọn một option trong dropdown theo text hiển thị.
+
+    Args:
+        driver (WebDriver): Đối tượng trình duyệt.
+        by (By): Loại định vị (vd: By.ID, By.XPATH).
+        locator (str): Giá trị locator của dropdown.
+        option_text (str): Text của option cần chọn.
 
     Raises:
-        AssertionError: Nếu thông báo không xuất hiện hoặc nội dung không khớp.
+        Exception: Nếu không tìm thấy option với text tương ứng.
     """
     try:
+        # Tìm dropdown
+        dropdown = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((by, locator))
+        )
+        dropdown.click()  # Mở dropdown
+
+        # Tìm và chọn option theo text
+        if by == By.ID:
+            option_locator = (By.XPATH, f"//select[@id='{locator}']/option[text()='{option_text}']")
+        elif by == By.NAME:
+            option_locator = (By.XPATH, f"//select[@name='{locator}']/option[text()='{option_text}']")
+        else:
+            raise ValueError("Hiện tại chỉ hỗ trợ định vị bằng ID hoặc NAME")
+
+        option = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(option_locator)
+        )
+        option.click()  # Chọn option
+
+    except Exception as e:
+        raise Exception(f"Không thể chọn option '{option_text}' trong dropdown: {e}")
+
+
+def check_toast_message(driver, message_class, expected_text):
+
+    try:
+        time.sleep(2)
         # Chờ toast message xuất hiện
         toast_message = WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.CLASS_NAME, message_class))
         )
 
-        # Kiểm tra xem toast message có hiển thị không
-        assert toast_message.is_displayed(), f"Không hiển thị thông báo. '{expected_text}"
+        # Kiểm tra xem toast message có hiển thị và nội dung có đúng không
+        if toast_message.is_displayed() and expected_text in toast_message.text.strip():
+            result = True
+        else:
+            result = False
+    except Exception:
+        result = False
 
-        # Kiểm tra nội dung của thông báo
-        actual_text = toast_message.text.strip()
-        assert expected_text in actual_text, f"Nội dung thông báo không khớp. Mong đợi: '{expected_text}', Thực tế: '{actual_text}'"
+    # Thêm time.sleep() sau khi trả về kết quả
+    time.sleep(2)
 
-        print(f"Thông báo hiển thị đúng ")
-    except Exception as e:
-        raise AssertionError(f"Lỗi khi kiểm tra thông báo: {e}")
+    return result
 
 
 def check_error_message(driver, message_class, expected_text):
@@ -74,6 +129,28 @@ def check_error_message(driver, message_class, expected_text):
     except AssertionError as e:
         print(f"Lỗi khi kiểm tra thông báo lỗi: {str(e)}")
         raise  # Ném lỗi lên để thông báo cho người kiểm thử
+
+def register_account(driver, fullname, phone, password):
+        """
+        Helper method to register a user account.
+        """
+        driver.get("http://localhost/Webbanhang-main/index.html")
+        time.sleep(2)
+        click_element(driver, By.CLASS_NAME, "text-dndk")
+        click_element(driver, By.ID, "signup")
+
+        fill_input(driver, By.ID, "fullname", fullname)
+        fill_input(driver, By.ID, "phone", phone)
+        fill_input(driver, By.ID, "password", password)
+        fill_input(driver, By.ID, "password_confirmation", password)
+        time.sleep(2)
+
+        checkbox = driver.find_element(By.ID, "checkbox-signup")
+        driver.execute_script("arguments[0].click();", checkbox)
+        time.sleep(1)
+
+        click_element(driver, By.ID, "signup-button")
+        time.sleep(2)
 
 
 def login(driver, phone_number, password):
@@ -468,3 +545,275 @@ def check_sorted_products(driver, ascending=True):
 
         # Cập nhật giá sản phẩm hiện tại
         prev_price = product_price
+
+def navigate_to_product_dashboard(driver, username, password):
+    """
+    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
+
+    Args:
+        driver: Đối tượng WebDriver.
+        username: Tên đăng nhập vào hệ thống.
+        password: Mật khẩu đăng nhập vào hệ thống.
+
+    Returns:
+        None
+    """
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Trang tổng quan']")
+    time.sleep(2)
+
+def navigate_to_product_category(driver, username, password):
+    """
+    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
+
+    Args:
+        driver: Đối tượng WebDriver.
+        username: Tên đăng nhập vào hệ thống.
+        password: Mật khẩu đăng nhập vào hệ thống.
+
+    Returns:
+        None
+    """
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Sản phẩm']")
+    time.sleep(2)
+
+def navigate_to_product_orders(driver, username, password):
+    """
+    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
+
+    Args:
+        driver: Đối tượng WebDriver.
+        username: Tên đăng nhập vào hệ thống.
+        password: Mật khẩu đăng nhập vào hệ thống.
+
+    Returns:
+        None
+    """
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Đơn hàng']")
+    time.sleep(2)
+
+def navigate_to_product_statistics(driver, username, password):
+    """
+    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
+
+    Args:
+        driver: Đối tượng WebDriver.
+        username: Tên đăng nhập vào hệ thống.
+        password: Mật khẩu đăng nhập vào hệ thống.
+
+    Returns:
+        None
+    """
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Thống kê']")
+    time.sleep(2)
+
+def go_to_next_page(driver):
+    try:
+        current_page = int(driver.find_element(By.XPATH, "//li[@class='page-nav-item active']/a").text.strip())
+        next_page = driver.find_element(By.XPATH, f"//li[@class='page-nav-item']/a[text()='{current_page + 1}']")
+        next_page.click()
+        time.sleep(2)
+        return True
+    except NoSuchElementException:
+        return False
+
+def calculate_orders_revenue(driver):
+    total_revenue = 0
+    orders = driver.find_elements(By.XPATH, "//tbody[@id='showOrder']//tr")
+    for order in orders:
+        try:
+            total_price_text = order.find_element(By.XPATH, ".//td[4]").text.strip()
+            total_price_clean = total_price_text.replace("₫", "").replace("\u00a0", "").replace(".", "").strip()
+            if total_price_clean.isdigit():
+                total_revenue += int(total_price_clean)
+        except Exception as e:
+            print(f"Lỗi khi xử lý đơn hàng: {e}")
+    return total_revenue
+
+
+def scroll_page(driver):
+    """Cuộn trang xuống 2/3 chiều cao của trang."""
+    scroll_height = driver.execute_script("return document.body.scrollHeight")
+    scroll_position = scroll_height * 2 / 3
+    driver.execute_script(f"window.scrollTo(0, {scroll_position});")
+    time.sleep(2)
+
+def check_products_on_page(driver):
+    """Kiểm tra sản phẩm trên trang hiện tại."""
+    products_section = driver.find_element(By.ID, "home-products")
+    products = products_section.find_elements(By.CLASS_NAME, "card-product")
+
+    assert len(products) > 0, "Không có sản phẩm trên trang hiện tại!"
+    print(f"Trang hiện tại có {len(products)} sản phẩm.")
+
+def navigate_to_next_page(driver):
+    """Tìm và điều hướng đến trang kế tiếp nếu có."""
+    try:
+        pagination = driver.find_element(By.CLASS_NAME, "page-nav-list")
+        pages = pagination.find_elements(By.CLASS_NAME, "page-nav-item")
+        active_page = pagination.find_element(By.CLASS_NAME, "active")
+        current_page_number = int(active_page.find_element(By.TAG_NAME, "a").text)
+        next_page_number = current_page_number + 1
+
+        # Tìm trang kế tiếp
+        for page in pages:
+            try:
+                page_number = int(page.find_element(By.TAG_NAME, "a").text)
+                if page_number == next_page_number:
+                    page.click()
+                    time.sleep(2)
+                    return True
+            except ValueError:
+                continue
+        return False
+
+    except Exception:
+        return False
+
+
+
+
+def enter_price(driver, min_price, max_price):
+    """Nhập giá vào các trường nhập liệu."""
+    min_price_input = driver.find_element(By.ID, "min-price")
+    max_price_input = driver.find_element(By.ID, "max-price")
+    min_price_input.clear()
+    min_price_input.send_keys(str(min_price))
+    max_price_input.clear()
+    max_price_input.send_keys(str(max_price))
+
+def wait_for_products(driver):
+    """Chờ để các sản phẩm được tải và kiểm tra."""
+    time.sleep(2)
+    return driver.find_element(By.ID, "home-products").find_elements(By.CLASS_NAME, "card-product")
+
+def check_product_price_within_range(products, min_price, max_price):
+    """Kiểm tra giá của các sản phẩm trong phạm vi giá cho phép."""
+    for product in products:
+        price_element = product.find_element(By.CLASS_NAME, "current-price")
+        product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+        product_price = int(product_price_text.replace(".", ""))
+
+        assert min_price <= product_price <= max_price, \
+            f"Giá sản phẩm '{product.text}' ({product_price}₫) không nằm trong khoảng từ {min_price}₫ đến {max_price}₫."
+
+def scroll_to_next_page(driver):
+    """Cuộn trang để tìm nút phân trang."""
+    try:
+        pagination = driver.find_element(By.CLASS_NAME, "page-nav-list")
+        pages = pagination.find_elements(By.CLASS_NAME, "page-nav-item")
+        return pages
+    except Exception as e:
+        print(f"Lỗi khi tìm phân trang: {str(e)}")
+        return []
+
+def navi_to_next_page(driver, products_section):
+    """Đi đến trang kế tiếp nếu có."""
+    try:
+        # Lấy danh sách sản phẩm trên trang hiện tại
+        products = products_section.find_elements(By.CLASS_NAME, "card-product")
+        page_count = 0  # Khởi tạo số trang
+
+        if len(products) > 0:
+            page_count += 1  # Tăng số trang nếu có sản phẩm
+
+        # Tìm các nút phân trang
+        pagination = driver.find_element(By.CLASS_NAME, "page-nav-list")
+        pages = pagination.find_elements(By.CLASS_NAME, "page-nav-item")
+
+        # Nếu có nhiều hơn một trang, kiểm tra và click vào trang kế tiếp
+        active_page = pagination.find_element(By.CLASS_NAME, "active")  # Trang hiện tại
+        current_page_number = int(active_page.find_element(By.TAG_NAME, "a").text)  # Số trang hiện tại
+        next_page_number = current_page_number + 1  # Trang kế tiếp là trang hiện tại + 1
+        next_page = None
+
+        # Tìm trang kế tiếp
+        for page in pages:
+            page_number = int(page.find_element(By.TAG_NAME, "a").text)
+            if page_number == next_page_number:  # Tìm trang có số trang = trang hiện tại + 1
+                next_page = page
+                break
+
+        if next_page:
+            # Cuộn đến 2/3 chiều cao của trang sau mỗi lần kiểm tra sản phẩm
+            scroll_height = driver.execute_script("return document.body.scrollHeight")
+            scroll_position = scroll_height * 2 / 3
+            driver.execute_script(f"window.scrollTo(0, {scroll_position});")
+            time.sleep(2)
+
+            # Click vào trang kế tiếp và chờ
+            click_element(driver, By.XPATH, f"//a[text()='{next_page_number}']")
+            time.sleep(2)
+
+            # Cuộn lại 2/3 chiều cao của trang
+            driver.execute_script(f"window.scrollTo(0, {scroll_position});")
+            time.sleep(2)
+
+            return True  # Đã chuyển sang trang kế tiếp
+
+        else:
+            # Nếu không còn trang kế tiếp
+            return False  # Dừng nếu không có trang kế tiếp
+
+    except Exception as e:
+        print(f"Lỗi khi chuyển trang: {str(e)}")
+        return False  # Trả về False nếu có lỗi xảy ra
