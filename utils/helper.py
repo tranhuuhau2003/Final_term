@@ -261,18 +261,8 @@ def logout_admin(driver):
         return False
 
 def add_customer(driver, fullname, phone, password):
-    """
-    Hàm thêm một khách hàng mới vào danh sách khách hàng.
-
-    :param driver: Đối tượng WebDriver
-    :param fullname: Tên khách hàng
-    :param phone: Số điện thoại khách hàng
-    :param password: Mật khẩu của khách hàng
-    """
-    # Nhấn vào nút "Thêm khách hàng"
     click_element(driver, By.XPATH, "//button[@id='btn-add-user']")
 
-    # Điền thông tin khách hàng mới
     fill_input(driver, By.ID, "fullname", fullname)
     fill_input(driver, By.ID, "phone", phone)
     fill_input(driver, By.ID, "password", password)
@@ -498,26 +488,6 @@ def check_cart_quantity(driver, added_products):
         print(f"Đã xảy ra lỗi trong hàm check_cart_quantity: {e}")
         raise
 
-def check_filtered_products(driver, min_price, max_price):
-    """Kiểm tra sản phẩm sau khi lọc theo giá."""
-    products_section = driver.find_element(By.ID, "home-products")
-    products = products_section.find_elements(By.CLASS_NAME, "card-product")
-
-    for product in products:
-        price_element = product.find_element(By.CLASS_NAME, "current-price")
-        product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
-        product_price_text = product_price_text.replace(".", "")
-
-        try:
-            product_price = int(product_price_text)
-        except ValueError:
-            print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
-            continue
-
-        # Kiểm tra xem giá sản phẩm có nằm trong khoảng lọc không
-        assert min_price <= product_price <= max_price, \
-            f"Giá sản phẩm '{product.text}' ({product_price}₫) không nằm trong khoảng {min_price}₫ đến {max_price}₫."
-
 def check_sorted_products(driver, ascending=True):
     """Kiểm tra sản phẩm sau khi sắp xếp theo giá."""
     prev_price = 0 if ascending else float('inf')
@@ -545,36 +515,6 @@ def check_sorted_products(driver, ascending=True):
 
         # Cập nhật giá sản phẩm hiện tại
         prev_price = product_price
-
-def navigate_to_product_dashboard(driver, username, password):
-    """
-    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
-
-    Args:
-        driver: Đối tượng WebDriver.
-        username: Tên đăng nhập vào hệ thống.
-        password: Mật khẩu đăng nhập vào hệ thống.
-
-    Returns:
-        None
-    """
-    # Mở trang web
-    driver.get("http://localhost/Webbanhang-main/index.html")
-
-    # Đăng nhập vào hệ thống
-    login(driver, username, password)
-    time.sleep(4)
-
-    # Nhấn vào "Đăng nhập / Đăng ký"
-    click_element(driver, By.CLASS_NAME, "text-dndk")
-
-    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
-    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
-    time.sleep(1)
-
-    # Mở danh mục sản phẩm
-    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Trang tổng quan']")
-    time.sleep(2)
 
 def navigate_to_product_category(driver, username, password):
     """
@@ -666,6 +606,8 @@ def navigate_to_product_statistics(driver, username, password):
     click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Thống kê']")
     time.sleep(2)
 
+
+# test_dashboard
 def go_to_next_page(driver):
     try:
         current_page = int(driver.find_element(By.XPATH, "//li[@class='page-nav-item active']/a").text.strip())
@@ -688,6 +630,36 @@ def calculate_orders_revenue(driver):
         except Exception as e:
             print(f"Lỗi khi xử lý đơn hàng: {e}")
     return total_revenue
+
+def navigate_to_product_dashboard(driver, username, password):
+    """
+    Hàm điều hướng đến danh mục sản phẩm trong hệ thống quản lý cửa hàng.
+
+    Args:
+        driver: Đối tượng WebDriver.
+        username: Tên đăng nhập vào hệ thống.
+        password: Mật khẩu đăng nhập vào hệ thống.
+
+    Returns:
+        None
+    """
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Trang tổng quan']")
+    time.sleep(2)
 
 
 def scroll_page(driver):
@@ -730,7 +702,65 @@ def navigate_to_next_page(driver):
         return False
 
 
+# test_customer_management
+def navigate_to_product_customer(driver, username, password):
 
+    # Mở trang web
+    driver.get("http://localhost/Webbanhang-main/index.html")
+
+    # Đăng nhập vào hệ thống
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Nhấn vào "Đăng nhập / Đăng ký"
+    click_element(driver, By.CLASS_NAME, "text-dndk")
+
+    # Chờ "Quản lý cửa hàng" xuất hiện và nhấn vào
+    click_element(driver, By.XPATH, "//a[contains(text(), 'Quản lý cửa hàng')]")
+    time.sleep(1)
+
+    # Mở danh mục sản phẩm
+    click_element(driver, By.XPATH, "//div[@class='hidden-sidebar' and text()='Khách hàng']")
+    time.sleep(2)
+
+
+
+# Test_navigation
+def scroll_half_page(driver):
+    scroll_height = driver.execute_script("return document.body.scrollHeight")
+    scroll_position = scroll_height / 2
+    driver.execute_script(f"window.scrollTo(0, {scroll_position});")
+    time.sleep(2)
+
+def get_menu_links(driver):
+    """
+    Lấy danh sách các liên kết trong mục 'Thực đơn'.
+    """
+    menu_section = driver.find_element(By.XPATH, "//h3[text()='Thực đơn']/following-sibling::ul")
+    return menu_section.find_elements(By.TAG_NAME, "a")
+
+
+
+# Test_search_and_filter
+def filter_products_by_price(driver, min_price, max_price):
+
+    min_price_input = driver.find_element(By.ID, "min-price")
+    max_price_input = driver.find_element(By.ID, "max-price")
+
+    min_price_input.clear()
+    min_price_input.send_keys(str(min_price))
+    max_price_input.clear()
+    max_price_input.send_keys(str(max_price))
+
+    price_filter_btn = driver.find_element(By.ID, "advanced-search-price-btn")
+    price_filter_btn.click()
+    time.sleep(2)
+
+def sort_products(driver, ascending=True):
+    sort_button_id = "sort-ascending" if ascending else "sort-descending"
+    sort_button = driver.find_element(By.ID, sort_button_id)
+    sort_button.click()
+    time.sleep(2)
 
 def enter_price(driver, min_price, max_price):
     """Nhập giá vào các trường nhập liệu."""
@@ -746,18 +776,7 @@ def wait_for_products(driver):
     time.sleep(2)
     return driver.find_element(By.ID, "home-products").find_elements(By.CLASS_NAME, "card-product")
 
-def check_product_price_within_range(products, min_price, max_price):
-    """Kiểm tra giá của các sản phẩm trong phạm vi giá cho phép."""
-    for product in products:
-        price_element = product.find_element(By.CLASS_NAME, "current-price")
-        product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
-        product_price = int(product_price_text.replace(".", ""))
-
-        assert min_price <= product_price <= max_price, \
-            f"Giá sản phẩm '{product.text}' ({product_price}₫) không nằm trong khoảng từ {min_price}₫ đến {max_price}₫."
-
 def scroll_to_next_page(driver):
-    """Cuộn trang để tìm nút phân trang."""
     try:
         pagination = driver.find_element(By.CLASS_NAME, "page-nav-list")
         pages = pagination.find_elements(By.CLASS_NAME, "page-nav-item")
@@ -817,3 +836,75 @@ def navi_to_next_page(driver, products_section):
     except Exception as e:
         print(f"Lỗi khi chuyển trang: {str(e)}")
         return False  # Trả về False nếu có lỗi xảy ra
+
+
+# test shopping cart
+
+def open_cart_and_login(driver, url, username, password):
+    # Mở trang chính
+    driver.get(url)
+    time.sleep(2)
+
+    # Đăng nhập
+    login(driver, username, password)
+    time.sleep(4)
+
+    # Mở giỏ hàng
+    click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
+    time.sleep(2)
+
+
+def get_cart_items(driver):
+    return WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
+    )
+
+
+def increase_quantity(random_item, random_increments):
+    for _ in range(random_increments):
+        increase_button = random_item.find_element(By.CSS_SELECTOR, ".plus.is-form")
+        increase_button.click()
+        time.sleep(1)  # Chờ cập nhật giao diện
+
+def decrease_quantity(random_item_to_decrease, random_decrements):
+    for _ in range(random_decrements):
+        decrease_button = random_item_to_decrease.find_element(By.CSS_SELECTOR, ".minus.is-form")
+        decrease_button.click()
+        time.sleep(1)  # Chờ cập nhật giao diện
+
+def close_cart(driver):
+    click_element(driver, By.CSS_SELECTOR, "i.fa-sharp.fa-solid.fa-xmark")
+    time.sleep(2)
+
+
+# Function to calculate the total price of the cart
+def calculate_cart_total(driver):
+    cart_items = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item")))
+    total_price = sum(
+        float(item.find_element(By.CSS_SELECTOR, ".cart-item-price").get_attribute("data-price")) *
+        int(item.find_element(By.CSS_SELECTOR, ".input-qty").get_attribute("value"))
+        for item in cart_items
+    )
+    return total_price
+
+# Function to get the total price displayed on the page
+def get_displayed_total_price(driver):
+    total_price_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".cart-total-price .text-price")))
+    total_price = float(total_price_element.text.strip().replace(".", "").replace("₫", ""))
+    return total_price
+
+# Function to proceed to checkout and select payment method
+def proceed_to_checkout(driver):
+    driver.find_element(By.CSS_SELECTOR, "button.thanh-toan").click()
+    time.sleep(2)
+    driver.find_element(By.ID, "giaotannoi").click()  # Select delivery option
+    time.sleep(2)
+    date_options = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "div.date-order a.pick-date")))
+    random.choice(date_options).click()
+    time.sleep(2)
+
+# Function to enter recipient details
+def enter_recipient_details(driver):
+    fill_input(driver, By.ID, "tennguoinhan", "Nguyễn Văn A")
+    fill_input(driver, By.ID, "sdtnhan", "0901234567")
+    fill_input(driver, By.ID, "diachinhan", "Số 123, Đường ABC, Quận XYZ, TP.HCM")

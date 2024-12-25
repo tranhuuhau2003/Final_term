@@ -1,21 +1,14 @@
-import datetime
 import time
 
-from selenium.common import TimeoutException
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
 import pytest
-from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
-from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, \
-    add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, \
-    check_cart_quantity, scroll_to_element, navigate_to_product_category, select_dropdown_option, clear_and_send_keys
+
 from Final_term.utils.driver_helper import init_driver, close_driver  # Import từ driver_helper
-from selenium.webdriver.common.by import By
-from datetime import datetime
-
-
+from Final_term.utils.helper import click_element, fill_input, check_toast_message, logout_admin, \
+    navigate_to_product_category, select_dropdown_option, clear_and_send_keys
 
 
 @pytest.fixture

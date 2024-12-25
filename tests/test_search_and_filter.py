@@ -1,17 +1,15 @@
-import random
-import time
-from selenium.common import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
-import pytest
-from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from Final_term.utils.helper import click_element, fill_input, check_toast_message, check_error_message, login, \
-    add_customer, logout, logout_admin, add_to_cart, add_multiple_to_cart, update_product_quantity_in_cart, \
-    check_cart_quantity, scroll_to_element, check_filtered_products, check_sorted_products, clear_and_send_keys, \
-    scroll_page, wait_for_products, scroll_to_next_page, navi_to_next_page, enter_price, check_product_price_within_range
-from Final_term.utils.driver_helper import init_driver, close_driver  # Import từ driver_helper
-from selenium.webdriver.common.by import By
 
+import time
+
+import pytest
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+from Final_term.utils.driver_helper import init_driver, close_driver  # Import từ driver_helper
+from Final_term.utils.helper import click_element, clear_and_send_keys, \
+    wait_for_products, scroll_to_next_page, navi_to_next_page, enter_price, \
+    filter_products_by_price, sort_products
 
 
 @pytest.fixture
@@ -192,68 +190,77 @@ class TestSearchAndFilter:
         print("Kiểm tra sắp xếp sản phẩm theo giá từ cao đến thấp thành công!")
 
     def test_filter_and_sort_products(self, driver):
-
-        # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(2)
-
-        # Nhấn vào nút Lọc
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
         time.sleep(2)
 
-        # Lọc sản phẩm theo giá
-        min_price_input = driver.find_element(By.ID, "min-price")
-        max_price_input = driver.find_element(By.ID, "max-price")
-
-        # Thiết lập giá cần lọc
         min_price = 20000  # Giá thấp nhất
         max_price = 50000  # Giá cao nhất
+        filter_products_by_price(driver, min_price, max_price)
 
-        # Nhập giá vào các trường
-        min_price_input.clear()
-        min_price_input.send_keys(str(min_price))
-        max_price_input.clear()
-        max_price_input.send_keys(str(max_price))
+        products_section = driver.find_element(By.ID, "home-products")
+        products = products_section.find_elements(By.CLASS_NAME, "card-product")
 
-        # Nhấn nút lọc giá
-        price_filter_btn = driver.find_element(By.ID, "advanced-search-price-btn")
-        price_filter_btn.click()
-        time.sleep(5)
+        for product in products:
+            price_element = product.find_element(By.CLASS_NAME, "current-price")
+            product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+            product_price_text = product_price_text.replace(".", "")
+            try:
+                product_price = int(product_price_text)
+            except ValueError:
+                print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
+                continue
 
-        # Kiểm tra sản phẩm sau khi lọc giá
-        check_filtered_products(driver, min_price, max_price)
-        time.sleep(2)
+            assert min_price <= product_price <= max_price, f"Giá sản phẩm '{product.text}' ({product_price}₫) không nằm trong khoảng {min_price}₫ đến {max_price}₫."
+        print("Kiểm tra lọc giá sản phẩm thành công!")
 
-        # Sắp xếp sản phẩm theo giá từ thấp đến cao
-        sort_ascending_btn = driver.find_element(By.ID, "sort-ascending")
-        sort_ascending_btn.click()
-        time.sleep(2)
 
-        # Kiểm tra sản phẩm sau khi sắp xếp theo giá từ thấp đến cao
-        check_sorted_products(driver, ascending=True)
-        time.sleep(2)
+        sort_products(driver, ascending=True)
+        prev_price = 0
+        products_section = driver.find_element(By.ID, "home-products")
+        products = products_section.find_elements(By.CLASS_NAME, "card-product")
 
-        # Nhấn nút reset để làm mới bộ lọc
-        reset_btn = driver.find_element(By.ID, "reset-search")
-        reset_btn.click()
-        time.sleep(2)
+        for product in products:
+            price_element = product.find_element(By.CLASS_NAME, "current-price")
+            product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+            product_price_text = product_price_text.replace(".", "")
+            try:
+                product_price = int(product_price_text)
+            except ValueError:
+                print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
+                continue
 
-        # Sắp xếp sản phẩm theo giá từ cao đến thấp
-        sort_descending_btn = driver.find_element(By.ID, "sort-descending")
-        sort_descending_btn.click()
-        time.sleep(2)
+            assert product_price >= prev_price, f"Giá sản phẩm '{product.text}' ({product_price}₫) không theo thứ tự từ thấp đến cao."
 
-        # Kiểm tra sản phẩm sau khi sắp xếp theo giá từ cao đến thấp
-        check_sorted_products(driver, ascending=False)
-        time.sleep(2)
+            prev_price = product_price
+        print("Kiểm tra sắp xếp giá sản phẩm từ thấp đến cao thành công!")
 
-        # Nhấn nút reset một lần nữa
-        reset_btn.click()
-        time.sleep(2)
+        click_element(driver, By.ID, "reset-search")
 
-        # Đóng phần lọc
-        close_filter_btn = driver.find_element(By.XPATH, "//button[@onclick='closeSearchAdvanced()']")
-        close_filter_btn.click()
-        time.sleep(2)
+
+        sort_products(driver, ascending=False)
+        prev_price = float('inf')
+        products_section = driver.find_element(By.ID, "home-products")
+        products = products_section.find_elements(By.CLASS_NAME, "card-product")
+        for product in products:
+            price_element = product.find_element(By.CLASS_NAME, "current-price")
+            product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
+            product_price_text = product_price_text.replace(".", "")
+            try:
+                product_price = int(product_price_text)
+            except ValueError:
+                print(f"Lỗi khi chuyển đổi giá '{product_price_text}' thành số.")
+                continue
+
+            assert product_price <= prev_price, \
+                f"Giá sản phẩm '{product.text}' ({product_price}₫) không theo thứ tự từ cao đến thấp."
+
+            prev_price = product_price
+        print("Kiểm tra sắp xếp giá sản phẩm từ cao đến thấp thành công!")
+
+        click_element(driver, By.ID, "reset-search")
+
+        click_element(driver, By.XPATH, "//button[@onclick='closeSearchAdvanced()']")
 
         print("Kiểm tra lọc và sắp xếp sản phẩm thành công!")
