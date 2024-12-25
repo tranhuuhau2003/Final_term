@@ -80,27 +80,22 @@ class TestSearchAndFilter:
                 f"Không tìm thấy thông báo phù hợp khi tìm kiếm từ khóa không tồn tại '{nonexistent_keyword}'. Lỗi: {e}")
 
     def test_filter_product_price(self, driver):
-        # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
 
-        # Nhấn vào nút Lọc
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
         time.sleep(1)
 
-        # Nhập giá cần lọc
         min_price = 20000
         max_price = 50000
         enter_price(driver, min_price, max_price)
 
-        # Nhấn nút lọc giá
         price_filter_btn = driver.find_element(By.ID, "advanced-search-price-btn")
         price_filter_btn.click()
         time.sleep(3)
 
         products = wait_for_products(driver)
 
-        # Kiểm tra giá của các sản phẩm trong phạm vi giá cho phép
         for product in products:
             price_element = product.find_element(By.CLASS_NAME, "current-price")
             product_price_text = price_element.text.strip().replace("₫", "").replace(",", "").strip()
@@ -112,15 +107,12 @@ class TestSearchAndFilter:
         print("Kiểm tra lọc sản phẩm theo giá thành công!")
 
     def test_sort_by_price_ascending(self, driver):
-        # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
 
-        # Nhấn vào nút Lọc
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
         time.sleep(1)
 
-        # Nhấn nút sắp xếp theo giá từ thấp đến cao
         sort_ascending_btn = driver.find_element(By.ID, "sort-ascending")
         sort_ascending_btn.click()
         time.sleep(1)
@@ -151,15 +143,12 @@ class TestSearchAndFilter:
         print("Kiểm tra sắp xếp sản phẩm theo giá từ thấp đến cao thành công!")
 
     def test_sort_by_price_descending(self, driver):
-        # Mở trang web
         driver.get("http://localhost/Webbanhang-main/index.html")
         time.sleep(1)
 
-        # Nhấn vào nút Lọc
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
         time.sleep(1)
 
-        # Nhấn nút sắp xếp theo giá từ cao đến thấp
         sort_descending_btn = driver.find_element(By.ID, "sort-descending")
         sort_descending_btn.click()
         time.sleep(2)
@@ -195,8 +184,8 @@ class TestSearchAndFilter:
         click_element(driver, By.CSS_SELECTOR, "button.filter-btn")
         time.sleep(2)
 
-        min_price = 20000  # Giá thấp nhất
-        max_price = 50000  # Giá cao nhất
+        min_price = 20000
+        max_price = 50000
         filter_products_by_price(driver, min_price, max_price)
 
         products_section = driver.find_element(By.ID, "home-products")

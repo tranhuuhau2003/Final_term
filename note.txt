@@ -8,3 +8,6 @@ còn customer, shopping cart
 bỏ hàm test filter product
 
 khách hàng phải tồn tại Võ Khánh Linh
+
+hộp trắng -2 -1 -2 -6 -4 -2 -1 -10 -2
+

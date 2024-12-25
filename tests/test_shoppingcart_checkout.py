@@ -122,43 +122,34 @@ class TestShoppingcartCheckout:
 
     def test_delete_product(self, driver):
         try:
-            # Mở trang chính
             driver.get("http://localhost/Webbanhang-main/index.html")
-            time.sleep(2)  # Chờ trang tải đầy đủ
+            time.sleep(2)
 
-            # Đăng nhập
             login(driver, "hgbaodev", "123456")
-            time.sleep(4)  # Chờ đăng nhập hoàn tất
+            time.sleep(4)
 
-            # Thêm sản phẩm vào giỏ hàng
             product_name, product_quantity = add_to_cart(driver)
 
-            # Mở giỏ hàng
             click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
-            time.sleep(2)  # Chờ giỏ hàng mở
+            time.sleep(2)
 
-            # Lấy tất cả các sản phẩm trong giỏ hàng
             cart_items = WebDriverWait(driver, 10).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
             )
 
-            # Tìm sản phẩm đã thêm vào giỏ hàng và nhấn vào nút xoá
             for item in cart_items:
                 cart_product_name = item.find_element(By.CSS_SELECTOR, ".cart-item-title").text.strip()
                 if cart_product_name == product_name:
-                    # Đợi nút xóa (cart-item-delete) xuất hiện và nhấn vào nó
                     delete_button = WebDriverWait(item, 10).until(
                         EC.element_to_be_clickable((By.CSS_SELECTOR, ".cart-item-delete"))
                     )
                     delete_button.click()
-                    time.sleep(2)  # Chờ sau khi nhấn nút xoá
+                    time.sleep(2)
 
-                    # Kiểm tra xem sản phẩm đã bị xoá khỏi giỏ hàng chưa
                     cart_items_after_delete = WebDriverWait(driver, 10).until(
                         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item"))
                     )
 
-                    # Assert rằng sản phẩm đã bị xoá khỏi giỏ hàng
                     assert not any(item for item in cart_items_after_delete if product_name in item.text), \
                         f"Sản phẩm '{product_name}' vẫn còn trong giỏ hàng sau khi xoá."
 
@@ -167,118 +158,14 @@ class TestShoppingcartCheckout:
             else:
                 print(f"Sản phẩm '{product_name}' không có trong giỏ hàng để xoá.")
 
-            # Đóng giỏ hàng
             click_element(driver, By.CSS_SELECTOR, "i.fa-sharp.fa-solid.fa-xmark")
-            time.sleep(2)  # Chờ giỏ hàng đóng
+            time.sleep(2)
 
         finally:
-            # Đảm bảo đăng xuất dù có xảy ra lỗi hay không
             logout(driver)
 
+
     def test_payment_on_delivery(self, driver):
-        try:
-            driver.get("http://localhost/Webbanhang-main/index.html")
-            time.sleep(2)
-            login(driver, "hgbaodev", "123456")
-            time.sleep(4)
-
-            products_in_cart = []
-            for _ in range(1):
-                product_name, product_quantity = add_to_cart(driver)
-                products_in_cart.append({"name": product_name, "quantity": product_quantity})
-
-            print("Sản phẩm trong giỏ hàng:", products_in_cart)
-
-            click_element(driver, By.CSS_SELECTOR, "i.fa-light.fa-basket-shopping")
-            time.sleep(2)
-            cart_items = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".cart-item")))
-
-            calculated_total_price = sum(
-                float(item.find_element(By.CSS_SELECTOR, ".cart-item-price").get_attribute("data-price")) *
-                int(item.find_element(By.CSS_SELECTOR, ".input-qty").get_attribute("value"))
-                for item in cart_items
-            )
-
-            print(f"Tổng tiền giỏ hàng tính toán: {calculated_total_price}₫")
-
-            total_price_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".cart-total-price .text-price")))
-            total_price = float(total_price_element.text.strip().replace(".", "").replace("₫", ""))
-
-            print(f"Tổng tiền giỏ hàng hiển thị: {total_price}₫")
-            assert calculated_total_price == total_price, f"Tổng tiền sai. Tính: {calculated_total_price}, Hiển thị: {total_price}"
-
-            click_element(driver, By.CSS_SELECTOR, "button.thanh-toan")
-            time.sleep(2)
-            click_element(driver, By.ID, "giaotannoi")
-            time.sleep(2)
-
-            date_options = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "div.date-order a.pick-date")))
-            random.choice(date_options).click()
-            time.sleep(2)
-
-            fill_input(driver, By.ID, "tennguoinhan", "Nguyễn Văn A")
-            fill_input(driver, By.ID, "sdtnhan", "0901234567")
-            fill_input(driver, By.ID, "diachinhan", "Số 123, Đường ABC, Quận XYZ, TP.HCM")
-            time.sleep(2)
-
-            order_total = float(driver.find_element(By.CSS_SELECTOR, "#checkout-cart-total").text.strip().replace(".", "").replace("₫",""))
-            shipping_fee = float(driver.find_element(By.CSS_SELECTOR, ".chk-ship .price-detail span").text.strip().replace(".","").replace("₫", ""))
-            final_total = float(driver.find_element(By.CSS_SELECTOR, "#checkout-cart-price-final").text.strip().replace(".","").replace("₫",""))
-
-            print(f"Tổng tiền hàng: {order_total}₫")
-            print(f"Phí vận chuyển: {shipping_fee}₫")
-            print(f"Tổng tiền cuối cùng: {final_total}₫")
-
-            expected_final_total = order_total + shipping_fee
-            assert final_total == expected_final_total, f"Tổng tiền không đúng. Tính: {expected_final_total}, Hiển thị: {final_total}"
-
-            click_element(driver, By.CSS_SELECTOR, ".complete-checkout-btn")
-            time.sleep(2)
-
-            click_element(driver, By.CLASS_NAME, "text-dndk")
-            time.sleep(2)
-            click_element(driver, By.XPATH, '//a[@onclick="orderHistory()"]')
-            time.sleep(2)
-
-            order_history_elements = driver.find_elements(By.CLASS_NAME, "order-history-group")
-            assert order_history_elements, "Không có đơn hàng nào."
-
-            latest_order = order_history_elements[0]
-            product_name_from_history = latest_order.find_element(By.CLASS_NAME, "order-history-info").find_element(
-                By.TAG_NAME, "h4").text.strip()
-            quantity_from_history = latest_order.find_element(By.CLASS_NAME, "order-history-quantity").text.strip()
-
-            print(f"Đơn hàng mới nhất: {product_name_from_history} x {quantity_from_history}")
-
-            product_found = False
-            for product in products_in_cart:
-                product_name_from_history_cleaned = product_name_from_history.rstrip('!')
-                quantity_from_history_cleaned = quantity_from_history.lstrip('x')
-
-                if product["name"] == product_name_from_history_cleaned and str(
-                        product["quantity"]) == quantity_from_history_cleaned:
-                    product_found = True
-                    break  # Nếu tìm thấy, thoát khỏi vòng lặp
-
-            if not product_found:
-                print(f"Sản phẩm không khớp:")
-                print(f"- Tên sản phẩm trong giỏ hàng: {products_in_cart[0]['name']}")
-                print(f"- Tên sản phẩm trong lịch sử đơn hàng: {product_name_from_history}")
-                print(f"- Số lượng trong giỏ hàng: {products_in_cart[0]['quantity']}")
-                print(f"- Số lượng trong lịch sử đơn hàng: {quantity_from_history}")
-
-            assert product_found, f"Sản phẩm {products_in_cart[0]['name']} không khớp trong lịch sử đơn hàng."
-
-            print("Thông tin sản phẩm khớp với lịch sử đơn hàng.")
-
-        except Exception as e:
-            print(f"Đã xảy ra lỗi trong quá trình test: {e}")
-            raise  # Ném lỗi lên để framework test ghi nhận
-
-        finally:
-            logout(driver)  # Đăng xuất sau khi kết thúc kiểm thử
-
-    def test_payment_on_delivery1(self, driver):
         try:
             driver.get("http://localhost/Webbanhang-main/index.html")
             time.sleep(2)
@@ -369,7 +256,7 @@ class TestShoppingcartCheckout:
             raise
 
         finally:
-            logout(driver)  # Đăng xuất sau khi kết thúc kiểm thử
+            logout(driver)
 
 
     def test_pay_until_pick_up(self, driver):

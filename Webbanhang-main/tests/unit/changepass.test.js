@@ -91,72 +91,86 @@ describe('changePassword', () => {
     });
 
     test('Hiển thị lỗi nếu mật khẩu hiện tại để trống', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu hiện tại để trống');
         document.getElementById('password-cur-info').value = '';
         document.getElementById('password-after-info').value = 'newpassword';
         document.getElementById('password-comfirm-info').value = 'newpassword';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu hiện tại để trống:', document.querySelector('.password-cur-info-error').innerHTML);
         expect(document.querySelector('.password-cur-info-error').innerHTML).toBe('Vui lòng nhập mật khẩu hiện tại');
     });
 
     test('Hiển thị lỗi nếu mật khẩu mới để trống', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu mới để trống');
         document.getElementById('password-cur-info').value = 'oldpassword';
         document.getElementById('password-after-info').value = '';
         document.getElementById('password-comfirm-info').value = 'newpassword';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu mới để trống:', document.querySelector('.password-after-info-error').innerHTML);
         expect(document.querySelector('.password-after-info-error').innerHTML).toBe('Vui lòn nhập mật khẩu mới');
     });
 
     test('Hiển thị lỗi nếu mật khẩu xác nhận để trống', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu xác nhận để trống');
         document.getElementById('password-cur-info').value = 'oldpassword';
         document.getElementById('password-after-info').value = 'newpassword';
         document.getElementById('password-comfirm-info').value = '';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu xác nhận để trống:', document.querySelector('.password-after-comfirm-error').innerHTML);
         expect(document.querySelector('.password-after-comfirm-error').innerHTML).toBe('Vui lòng nhập mật khẩu xác nhận');
     });
 
     test('Hiển thị lỗi nếu mật khẩu hiện tại không đúng', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu hiện tại không đúng');
         document.getElementById('password-cur-info').value = 'wrongpassword';
         document.getElementById('password-after-info').value = 'newpassword';
         document.getElementById('password-comfirm-info').value = 'newpassword';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu hiện tại sai:', document.querySelector('.password-cur-info-error').innerHTML);
         expect(document.querySelector('.password-cur-info-error').innerHTML).toBe('Bạn đã nhập sai mật khẩu hiện tại');
     });
 
     test('Hiển thị lỗi nếu mật khẩu mới có ít hơn 6 ký tự', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu mới có ít hơn 6 ký tự');
         document.getElementById('password-cur-info').value = 'oldpassword';
         document.getElementById('password-after-info').value = 'short';
         document.getElementById('password-comfirm-info').value = 'short';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu mới ngắn:', document.querySelector('.password-after-info-error').innerHTML);
         expect(document.querySelector('.password-after-info-error').innerHTML).toBe('Vui lòng nhập mật khẩu mới có số  kí tự lớn hơn bằng 6');
     });
 
     test('Hiển thị lỗi nếu mật khẩu xác nhận không trùng khớp với mật khẩu mới', () => {
+        console.log('Test: Hiển thị lỗi nếu mật khẩu xác nhận không trùng khớp với mật khẩu mới');
         document.getElementById('password-cur-info').value = 'oldpassword';
         document.getElementById('password-after-info').value = 'newpassword';
         document.getElementById('password-comfirm-info').value = 'mismatchpassword';
 
         changePassword();
 
+        console.log('Lỗi mật khẩu xác nhận không trùng khớp:', document.querySelector('.password-after-comfirm-error').innerHTML);
         expect(document.querySelector('.password-after-comfirm-error').innerHTML).toBe('Mật khẩu bạn nhập không trùng khớp');
     });
 
     test('Đổi mật khẩu thành công khi tất cả điều kiện đúng', () => {
+        console.log('Test: Đổi mật khẩu thành công khi tất cả điều kiện đúng');
         document.getElementById('password-cur-info').value = 'oldpassword';
         document.getElementById('password-after-info').value = 'newpassword';
         document.getElementById('password-comfirm-info').value = 'newpassword';
 
         changePassword();
 
+        console.log('Mật khẩu mới trong localStorage:', localStorage.getItem('currentuser'));
         expect(localStorage.getItem('currentuser')).toBe(JSON.stringify({ password: 'newpassword', phone: '1234567890' }));
         expect(localStorage.getItem('accounts')).toBe(JSON.stringify([{ phone: '1234567890', password: 'newpassword' }]));
         expect(global.toast).toHaveBeenCalledWith({

@@ -104,53 +104,58 @@ describe('Login Event Listener Function', () => {
     });
 
     test('Phone number field is empty', () => {
+        console.log('Test: Phone number field is empty');
         document.getElementById('phone-login').value = '';
         document.getElementById('password-login').value = '123456';
-        // lưu trữ dữ liệu dưới dạng khóa key accounts
         localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
+
         loginEventListener(event);
+        console.log('Kết quả:', document.querySelector('.form-message.phonelog').innerHTML);
         expect(document.querySelector('.form-message.phonelog').innerHTML).toBe('Vui lòng nhập vào số điện thoại');
     });
 
     test('Account does not exist', () => {
+        console.log('Test: Account does not exist');
         document.getElementById('phone-login').value = '1234567890';
         document.getElementById('password-login').value = '123456';
         localStorage.setItem('accounts', JSON.stringify([{ phone: '0987654321', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
 
+        loginEventListener(event);
+        console.log('Kết quả:', toast.mock.calls[0][0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Error', message: 'Tài khoản của bạn không tồn tại', type: 'error', duration: 3000 });
     });
 
     test('Account is locked', () => {
+        console.log('Test: Account is locked');
         document.getElementById('phone-login').value = '1234567890';
         document.getElementById('password-login').value = '123456';
         localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 0 }]));
-        
-        loginEventListener(event);
 
+        loginEventListener(event);
+        console.log('Kết quả:', toast.mock.calls[0][0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Warning', message: 'Tài khoản của bạn đã bị khóa', type: 'warning', duration: 3000 });
     });
 
     test('Successful login', () => {
+        console.log('Test: Successful login');
         document.getElementById('phone-login').value = '1234567890';
         document.getElementById('password-login').value = '123456';
         localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
 
+        loginEventListener(event);
+        console.log('Kết quả: Current user stored in localStorage:', localStorage.getItem('currentuser'));
         expect(localStorage.getItem('currentuser')).toEqual(JSON.stringify({ phone: '1234567890', password: '123456', status: 1 }));
         expect(toast).toHaveBeenCalledWith({ title: 'Success', message: 'Đăng nhập thành công', type: 'success', duration: 3000 });
     });
 
     test('Incorrect password', () => {
+        console.log('Test: Incorrect password');
         document.getElementById('phone-login').value = '1234567890';
         document.getElementById('password-login').value = 'wrongpassword';
         localStorage.setItem('accounts', JSON.stringify([{ phone: '1234567890', password: '123456', status: 1 }]));
-        
-        loginEventListener(event);
 
+        loginEventListener(event);
+        console.log('Kết quả:', toast.mock.calls[0][0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Warning', message: 'Sai mật khẩu', type: 'warning', duration: 3000 });
     });
 });

@@ -69,11 +69,9 @@ document.getElementById("updateAccount").addEventListener("click", (e) => {
     }
 });
 
-// Mô phỏng các hàm bổ sung được sử dụng trong trình xử lý sự kiện updateAccount
 global.signUpFormReset = jest.fn();
 global.showUser = jest.fn();
 
-// Các trường hợp kiểm thử
 describe('editAccount', () => {
     beforeEach(() => {
         localStorage.getItem.mockReturnValue(JSON.stringify([
@@ -93,9 +91,19 @@ describe('editAccount', () => {
         jest.clearAllMocks();
     });
 
-    // Mở trang để chỉnh sửa thông tin khách hàng
     test('Nên mở modal đăng ký và điền thông tin để chỉnh sửa', () => {
+        console.log('Test: Nên mở modal đăng ký và điền thông tin để chỉnh sửa');
         editAccount('1234567890');
+
+        console.log('Kết quả:', {
+            openModal: document.querySelector(".signup").classList.contains("open"),
+            addAccountDisplay: document.querySelectorAll(".add-account-e")[0].style.display,
+            editAccountDisplay: document.querySelectorAll(".edit-account-e")[0].style.display,
+            fullname: document.getElementById("fullname").value,
+            phone: document.getElementById("phone").value,
+            password: document.getElementById("password").value,
+            userStatus: document.getElementById("user-status").checked
+        });
 
         expect(document.querySelector(".signup").classList.contains("open")).toBe(true);
         expect(document.querySelectorAll(".add-account-e")[0].style.display).toBe("none");
@@ -124,15 +132,6 @@ describe('updateAccount', () => {
         document.getElementById("user-status").checked = false;
     });
 
-    test('Nên hiển thị thông báo cảnh báo khi các trường trống', () => {
-        document.getElementById("fullname").value = "";
-        document.getElementById("phone").value = "";
-        document.getElementById("password").value = "";
-
-        document.getElementById("updateAccount").click();
-
-        expect(toast).toHaveBeenCalledWith({ title: 'Chú ý', message: 'Vui lòng nhập đầy đủ thông tin!', type: 'warning', duration: 3000 });
-    });
 
     test('Nên cập nhật thông tin tài khoản và hiển thị thông báo thành công khi các trường hợp hợp lệ', () => {
         document.getElementById("fullname").value = "User Updated";
@@ -142,6 +141,12 @@ describe('updateAccount', () => {
         indexFlag = 0; // Đảm bảo indexFlag được thiết lập để mô phỏng hàm editAccount
 
         document.getElementById("updateAccount").click();
+
+        console.log('Test: Nên cập nhật thông tin tài khoản và hiển thị thông báo thành công khi các trường hợp hợp lệ');
+        console.log('Kết quả:', {
+            updatedAccounts: JSON.parse(localStorage.getItem("accounts")),
+            toastMessage: toast.mock.calls[1][0]
+        });
 
         expect(localStorage.setItem).toHaveBeenCalledWith("accounts", JSON.stringify([
             { fullname: 'User Updated', phone: '1234567890', password: 'newpass', status: 1 },

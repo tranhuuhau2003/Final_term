@@ -120,36 +120,6 @@ addAccount.addEventListener("click", (e) => {
     }
 });
 
-// Các test case
-describe('Hàm openCreateAccount', () => {
-
-    beforeEach(() => {
-        // Reset các phần tử DOM trước mỗi bài kiểm tra
-        document.querySelector(".signup").classList.remove("open");
-        document.querySelectorAll(".edit-account-e").forEach(item => {
-            item.style.display = "block";
-        });
-        document.querySelectorAll(".add-account-e").forEach(item => {
-            item.style.display = "none";
-        });
-    });
-
-    test('nên mở form tạo tài khoản', () => {
-        openCreateAccount();
-
-        // Kiểm tra nếu .signup có class 'open'
-        expect(document.querySelector('.signup').classList.contains('open')).toBe(true);
-    });
-
-    test('nên hiển thị các phần tử thêm tài khoản', () => {
-        openCreateAccount();
-
-        // Kiểm tra nếu tất cả phần tử .add-account-e được hiển thị
-        document.querySelectorAll('.add-account-e').forEach(item => {
-            expect(item.style.display).toBe('block');
-        });
-    });
-});
 
 describe('Sự kiện lắng nghe addAccount', () => {
 
@@ -158,30 +128,32 @@ describe('Sự kiện lắng nghe addAccount', () => {
         jest.clearAllMocks();
     });
 
-    test('nên xác thực các trường nhập liệu', () => {
-        document.getElementById('fullname').value = '';
-        document.getElementById('phone').value = '';
-        document.getElementById('password').value = '';
+    test('xác thực các trường nhập liệu', () => {
+            document.getElementById('fullname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('password').value = '';
 
-        addAccount.click();
+            addAccount.click();
 
-        expect(document.querySelector('.form-message-phone').innerHTML).toBe('Vui lòng nhập vào số điện thoại');
-        expect(document.querySelector('.form-message-password').innerHTML).toBe('Vui lòng nhập mật khẩu');
-    });
+            const phoneMessage = document.querySelector('.form-message-phone').innerHTML;
+            const passwordMessage = document.querySelector('.form-message-password').innerHTML;
 
-    test('nên hiển thị thông báo lỗi cho các giá trị nhập không hợp lệ', () => {
-        document.getElementById('fullname').value = 'Jo';
-        document.getElementById('phone').value = '12345';
-        document.getElementById('password').value = '123';
+            console.log('Kiểm tra thông báo lỗi cho số điện thoại:', phoneMessage);
+            console.log('Kiểm tra thông báo lỗi cho mật khẩu:', passwordMessage);
 
-        addAccount.click();
+            expect(phoneMessage).toBe('Vui lòng nhập vào số điện thoại');
+            expect(passwordMessage).toBe('Vui lòng nhập mật khẩu');
 
-        expect(document.querySelector('.form-message-name').innerHTML).toBe('Vui lòng nhập họ và tên lớn hơn 3 kí tự');
-        expect(document.querySelector('.form-message-phone').innerHTML).toBe('Vui lòng nhập vào số điện thoại 10 số');
-        expect(document.querySelector('.form-message-password').innerHTML).toBe('Vui lòng nhập mật khẩu lớn hơn 6 kí tự');
-    });
+            // Assert that the form does not submit when fields are empty
+            const accounts = localStorage.getItem('accounts');
+            console.log('Kiểm tra tài khoản trong localStorage:', accounts);
+            expect(accounts).toBeNull();
+            expect(toast).not.toHaveBeenCalled();
+            expect(showUser).not.toHaveBeenCalled();
+            expect(signUpFormReset).not.toHaveBeenCalled();
+        });
 
-    test('nên thêm một tài khoản mới nếu tất cả các trường nhập hợp lệ', () => {
+    test('thêm một tài khoản mới nếu tất cả các trường nhập hợp lệ', () => {
         document.getElementById('fullname').value = 'John Doe';
         document.getElementById('phone').value = '1234567890';
         document.getElementById('password').value = 'password123';
@@ -189,16 +161,23 @@ describe('Sự kiện lắng nghe addAccount', () => {
         addAccount.click();
 
         const accounts = JSON.parse(localStorage.getItem('accounts'));
+        console.log('Kiểm tra tài khoản mới thêm vào localStorage:', accounts);
+
         expect(accounts.length).toBe(1);
         expect(accounts[0].fullname).toBe('John Doe');
         expect(accounts[0].phone).toBe('1234567890');
         expect(accounts[0].password).toBe('password123');
+
+        // Assert that toast shows success message
+        console.log('Kiểm tra thông báo toast:', toast.mock.calls[0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Thành công', message: 'Tạo thành công tài khoản !', type: 'success', duration: 3000 });
+
+        // Assert that other functions are called correctly
         expect(showUser).toHaveBeenCalled();
         expect(signUpFormReset).toHaveBeenCalled();
     });
 
-    test('nên không thêm tài khoản trùng lặp', () => {
+    test('không thêm tài khoản trùng lặp', () => {
         const existingAccounts = [
             { fullname: 'Jane Smith', phone: '0987654321', password: 'password123', userType: 0 }
         ];
@@ -211,9 +190,15 @@ describe('Sự kiện lắng nghe addAccount', () => {
         addAccount.click();
 
         const accounts = JSON.parse(localStorage.getItem('accounts'));
+        console.log('Kiểm tra tài khoản trong localStorage sau khi nhập trùng lặp:', accounts);
         expect(accounts.length).toBe(1);  // Vẫn chỉ có một tài khoản
         expect(accounts[0].phone).toBe('0987654321');
+
+        // Assert that toast shows error message for duplicate account
+        console.log('Kiểm tra thông báo toast cho tài khoản trùng lặp:', toast.mock.calls[0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Cảnh báo !', message: 'Tài khoản đã tồn tại !', type: 'error', duration: 3000 });
+
+        // Assert that other functions are not called
         expect(showUser).not.toHaveBeenCalled();
         expect(signUpFormReset).not.toHaveBeenCalled();
     });

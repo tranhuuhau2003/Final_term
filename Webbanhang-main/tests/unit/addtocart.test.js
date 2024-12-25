@@ -2,145 +2,133 @@
  * @jest-environment jsdom
  */
 
-// Mô phỏng các phương thức localStorage, updateAmount, closeModal và các hàm cần thiết khác
 class LocalStorageMock {
     constructor() {
-        this.store = {}; // Khởi tạo đối tượng lưu trữ
+        this.store = {};
     }
 
     clear() {
-        this.store = {}; // Xóa tất cả dữ liệu trong localStorage
+        this.store = {};
     }
 
     getItem(key) {
-        return this.store[key] || null; // Lấy dữ liệu theo khóa, nếu không có thì trả về null
+        return this.store[key] || null;
     }
 
     setItem(key, value) {
-        this.store[key] = value; // Lưu dữ liệu vào localStorage
+        this.store[key] = value;
     }
 
     removeItem(key) {
-        delete this.store[key]; // Xóa một mục dữ liệu theo khóa
+        delete this.store[key];
     }
 }
 
-global.localStorage = new LocalStorageMock(); // Gán mô phỏng localStorage vào đối tượng global
-global.updateAmount = jest.fn(); // Mô phỏng hàm updateAmount
-global.closeModal = jest.fn(); // Mô phỏng hàm closeModal
-global.toast = jest.fn(); // Mô phỏng hàm toast
+global.localStorage = new LocalStorageMock();
+global.updateAmount = jest.fn();
+global.closeModal = jest.fn();
+global.toast = jest.fn();
 
-// Định nghĩa hàm addCart
 function addCart(index) {
-    let currentuser = localStorage.getItem('currentuser') ? JSON.parse(localStorage.getItem('currentuser')) : { cart: [] }; // Lấy thông tin người dùng từ localStorage
-    let soluong = document.querySelector('.input-qty').value; // Lấy số lượng sản phẩm
-    let popupDetailNote = document.querySelector('#popup-detail-note').value; // Lấy ghi chú sản phẩm
-    let note = popupDetailNote == "" ? "Không có ghi chú" : popupDetailNote; // Nếu không có ghi chú thì mặc định là "Không có ghi chú"
+    let currentuser = localStorage.getItem('currentuser') ? JSON.parse(localStorage.getItem('currentuser')) : { cart: [] };
+    let soluong = document.querySelector('.input-qty').value;
+    let popupDetailNote = document.querySelector('#popup-detail-note').value;
+    let note = popupDetailNote == "" ? "Không có ghi chú" : popupDetailNote;
     let productcart = {
-        id: index, // ID sản phẩm
-        soluong: parseInt(soluong), // Số lượng sản phẩm
-        note: note // Ghi chú sản phẩm
+        id: index,
+        soluong: parseInt(soluong),
+        note: note
     }
-    let vitri = currentuser.cart.findIndex(item => item.id == productcart.id); // Tìm vị trí sản phẩm trong giỏ hàng
+    let vitri = currentuser.cart.findIndex(item => item.id == productcart.id);
     if (vitri == -1) {
-        currentuser.cart.push(productcart); // Nếu chưa có sản phẩm trong giỏ hàng thì thêm sản phẩm mới
+        currentuser.cart.push(productcart);
     } else {
-        currentuser.cart[vitri].soluong = parseInt(currentuser.cart[vitri].soluong) + parseInt(productcart.soluong); // Cập nhật số lượng sản phẩm nếu sản phẩm đã có trong giỏ hàng
+        currentuser.cart[vitri].soluong = parseInt(currentuser.cart[vitri].soluong) + parseInt(productcart.soluong);
     }
-    localStorage.setItem('currentuser', JSON.stringify(currentuser)); // Lưu giỏ hàng vào localStorage
-    updateAmount(); // Cập nhật số lượng giỏ hàng
-    closeModal(); // Đóng cửa sổ pop-up
+    localStorage.setItem('currentuser', JSON.stringify(currentuser));
+    updateAmount();
+    closeModal();
 }
 
-// Thiết lập các phần tử DOM cho việc kiểm thử
 document.body.innerHTML = `
     <input class="input-qty" type="number" value="1" />
     <textarea id="popup-detail-note"></textarea>
     <button class="button-dat"></button>
 `;
 
-let infoProduct = { id: 1 }; // Thông tin sản phẩm
+let infoProduct = { id: 1 };
 
 let productbtn = document.querySelector('.button-dat');
 productbtn.addEventListener('click', (e) => {
     if (localStorage.getItem('currentuser')) {
-        addCart(infoProduct.id); // Gọi hàm addCart nếu người dùng đã đăng nhập
+        addCart(infoProduct.id);
     } else {
-        toast({ title: 'Warning', message: 'Chưa đăng nhập tài khoản !', type: 'warning', duration: 3000 }); // Hiển thị thông báo cảnh báo nếu người dùng chưa đăng nhập
+        toast({ title: 'Warning', message: 'Chưa đăng nhập tài khoản !', type: 'warning', duration: 3000 });
     }
 });
 
-// Các trường hợp kiểm thử
 describe('Hàm addCart', () => {
 
     beforeEach(() => {
-        localStorage.clear(); // Xóa dữ liệu trong localStorage trước mỗi kiểm thử
-        jest.clearAllMocks(); // Xóa các lời gọi giả lập
-        document.querySelector('.input-qty').value = '1'; // Đặt lại giá trị số lượng
-        document.getElementById('popup-detail-note').value = ''; // Đặt lại giá trị ghi chú
+        localStorage.clear();
+        jest.clearAllMocks();
+        document.querySelector('.input-qty').value = '1';
+        document.getElementById('popup-detail-note').value = '';
     });
 
-    test('nên thêm sản phẩm mới vào giỏ hàng', () => {
-        addCart(1); // Gọi hàm addCart để thêm sản phẩm
+    test('thêm sản phẩm mới vào giỏ hàng', () => {
+        console.log('------ Bắt đầu test: Thêm sản phẩm mới vào giỏ hàng ------');
 
-        const currentUser = JSON.parse(localStorage.getItem('currentuser')); // Lấy dữ liệu giỏ hàng từ localStorage
-        expect(currentUser.cart.length).toBe(1); // Kiểm tra xem giỏ hàng có một sản phẩm không
-        expect(currentUser.cart[0].id).toBe(1); // Kiểm tra ID của sản phẩm trong giỏ hàng
-        expect(currentUser.cart[0].soluong).toBe(1); // Kiểm tra số lượng sản phẩm
-        expect(currentUser.cart[0].note).toBe("Không có ghi chú"); // Kiểm tra ghi chú của sản phẩm
-        expect(updateAmount).toHaveBeenCalled(); // Kiểm tra xem hàm updateAmount có được gọi không
-        expect(closeModal).toHaveBeenCalled(); // Kiểm tra xem hàm closeModal có được gọi không
+        addCart(1);
+
+        const currentUser = JSON.parse(localStorage.getItem('currentuser'));
+        console.log('Giỏ hàng sau khi thêm sản phẩm mới:', currentUser.cart);
+
+        expect(currentUser.cart.length).toBe(1);
+        expect(currentUser.cart[0].id).toBe(1);
+        expect(currentUser.cart[0].soluong).toBe(1);
+        expect(currentUser.cart[0].note).toBe("Không có ghi chú");
+
+        console.log('Kiểm tra hàm updateAmount đã được gọi:', updateAmount.mock.calls.length);
+        expect(updateAmount).toHaveBeenCalled();
+        expect(closeModal).toHaveBeenCalled();
+
+        console.log('------ Kết thúc test: Thêm sản phẩm mới vào giỏ hàng ------\n');
     });
 
-    test('nên cập nhật số lượng nếu sản phẩm đã có trong giỏ hàng', () => {
+    test('cập nhật số lượng nếu sản phẩm đã có trong giỏ hàng', () => {
+        console.log('------ Bắt đầu test: Cập nhật số lượng sản phẩm trong giỏ hàng ------');
+
         localStorage.setItem('currentuser', JSON.stringify({
             cart: [{ id: 1, soluong: 1, note: "Không có ghi chú" }]
         }));
 
-        document.querySelector('.input-qty').value = '2'; // Đặt lại số lượng
-        addCart(1); // Gọi hàm addCart
+        document.querySelector('.input-qty').value = '2';
+        addCart(1);
 
-        const currentUser = JSON.parse(localStorage.getItem('currentuser')); // Lấy dữ liệu giỏ hàng
-        expect(currentUser.cart.length).toBe(1); // Kiểm tra số lượng sản phẩm trong giỏ hàng
-        expect(currentUser.cart[0].id).toBe(1); // Kiểm tra ID của sản phẩm
-        expect(currentUser.cart[0].soluong).toBe(3); // Kiểm tra số lượng sản phẩm sau khi cập nhật
-        expect(currentUser.cart[0].note).toBe("Không có ghi chú"); // Kiểm tra ghi chú
-        expect(updateAmount).toHaveBeenCalled(); // Kiểm tra xem hàm updateAmount có được gọi không
-        expect(closeModal).toHaveBeenCalled(); // Kiểm tra xem hàm closeModal có được gọi không
+        const currentUser = JSON.parse(localStorage.getItem('currentuser'));
+        console.log('Giỏ hàng sau khi cập nhật số lượng:', currentUser.cart);
+
+        expect(currentUser.cart.length).toBe(1);
+        expect(currentUser.cart[0].id).toBe(1);
+        expect(currentUser.cart[0].soluong).toBe(3);
+        expect(currentUser.cart[0].note).toBe("Không có ghi chú");
+        expect(updateAmount).toHaveBeenCalled();
+        expect(closeModal).toHaveBeenCalled();
+
+        console.log('------ Kết thúc test: Cập nhật số lượng sản phẩm trong giỏ hàng ------\n');
     });
 
-    test('nên thêm sản phẩm mới với ghi chú vào giỏ hàng', () => {
-        document.querySelector('.input-qty').value = '1'; // Đặt lại số lượng
-        document.getElementById('popup-detail-note').value = 'This is a note'; // Đặt ghi chú
-        addCart(2); // Gọi hàm addCart
+    test('hiển thị thông báo cảnh báo khi nhấn nút và người dùng chưa đăng nhập', () => {
+        console.log('------ Bắt đầu test: Hiển thị thông báo cảnh báo khi người dùng chưa đăng nhập ------');
 
-        const currentUser = JSON.parse(localStorage.getItem('currentuser')); // Lấy dữ liệu giỏ hàng
-        expect(currentUser.cart.length).toBe(1); // Kiểm tra số lượng sản phẩm
-        expect(currentUser.cart[0].id).toBe(2); // Kiểm tra ID sản phẩm
-        expect(currentUser.cart[0].soluong).toBe(1); // Kiểm tra số lượng sản phẩm
-        expect(currentUser.cart[0].note).toBe("This is a note"); // Kiểm tra ghi chú
-        expect(updateAmount).toHaveBeenCalled(); // Kiểm tra xem hàm updateAmount có được gọi không
-        expect(closeModal).toHaveBeenCalled(); // Kiểm tra xem hàm closeModal có được gọi không
-    });
-
-    test('nên gọi addCart khi nhấn nút và người dùng đã đăng nhập', () => {
-        localStorage.setItem('currentuser', JSON.stringify({ cart: [] }));
-
-        // Mô phỏng việc nhấn nút
+        localStorage.removeItem('currentuser');
         productbtn.click();
 
-        // Lấy giỏ hàng sau khi nhấn nút
-        const currentUser = JSON.parse(localStorage.getItem('currentuser'));
-        expect(currentUser.cart.length).toBe(1); // Kiểm tra số lượng sản phẩm trong giỏ hàng
-        expect(currentUser.cart[0].id).toBe(1); // Kiểm tra ID sản phẩm
-        expect(updateAmount).toHaveBeenCalled(); // Kiểm tra xem hàm updateAmount có được gọi không
-        expect(closeModal).toHaveBeenCalled(); // Kiểm tra xem hàm closeModal có được gọi không
+        console.log('Kiểm tra thông báo toast:', toast.mock.calls);
+        expect(toast).toHaveBeenCalledWith({ title: 'Warning', message: 'Chưa đăng nhập tài khoản !', type: 'warning', duration: 3000 });
+
+        console.log('------ Kết thúc test: Hiển thị thông báo cảnh báo khi người dùng chưa đăng nhập ------\n');
     });
 
-    test('nên hiển thị thông báo cảnh báo khi nhấn nút và người dùng chưa đăng nhập', () => {
-        localStorage.removeItem('currentuser'); // Xóa người dùng khỏi localStorage
-        productbtn.click(); // Mô phỏng việc nhấn nút
-
-        expect(toast).toHaveBeenCalledWith({ title: 'Warning', message: 'Chưa đăng nhập tài khoản !', type: 'warning', duration: 3000 }); // Kiểm tra xem thông báo cảnh báo có được hiển thị không
-    });
 });

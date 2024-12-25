@@ -1,4 +1,3 @@
-// Mock localStorage for testing purposes
 class LocalStorageMock {
     constructor() {
         this.store = {};
@@ -21,21 +20,17 @@ class LocalStorageMock {
     }
 }
 
-// Replace global localStorage with the mock
 global.localStorage = new LocalStorageMock();
 
-// Mock functions used in the signup process
 global.toast = jest.fn();
 global.closeModal = jest.fn();
 global.kiemtradangnhap = jest.fn();
 global.updateAmount = jest.fn();
-//giúp mô phỏng hành động của sự kiện mà không cần phải thực sự kích hoạt nó 
-// Mock event
+
 const event = {
     preventDefault: jest.fn()
 };
 
-// Set up DOM elements mock
 document.body.innerHTML = `
     <input id="fullname" type="text" value="" />
     <input id="phone" type="text" value="" />
@@ -49,7 +44,6 @@ document.body.innerHTML = `
     <div class="form-message-checkbox"></div>
 `;
 
-// Mock signup button click handler
 const signupButton = {
     click: jest.fn(() => {
         const fullname = document.getElementById('fullname').value.trim();
@@ -126,9 +120,7 @@ const signupButton = {
         });
     })
 };
-
-// Test cases
-describe('Signup Event Listener Function', () => {
+describe('Chức năng đăng ký', () => {
     afterEach(() => {
         localStorage.clear();
         jest.clearAllMocks();
@@ -139,56 +131,78 @@ describe('Signup Event Listener Function', () => {
         document.getElementById('checkbox-signup').checked = false;
     });
 
-    test('Phone number is empty', () => {
+    test('Số điện thoại trống', () => {
+        const testName = 'Số điện thoại trống';
+        console.log(`Test: ${testName}`);
         document.getElementById('fullname').value = 'John Doe';
         signupButton.click();
+
+        console.log('Đang kiểm tra: Thông báo lỗi cho số điện thoại trống');
         expect(document.querySelector('.form-message-phone').innerHTML).toBe('Vui lòng nhập vào số điện thoại');
     });
 
-    test('Password is empty', () => {
+    test('Mật khẩu trống', () => {
+        const testName = 'Mật khẩu trống';
+        console.log(`Test: ${testName}`);
         document.getElementById('fullname').value = 'John Doe';
         document.getElementById('phone').value = '1234567890';
         signupButton.click();
+
+        console.log('Đang kiểm tra: Thông báo lỗi cho mật khẩu trống');
         expect(document.querySelector('.form-message-password').innerHTML).toBe('Vui lòng nhập mật khẩu');
     });
 
-    test('Password does not match confirmation', () => {
+    test('Mật khẩu không khớp với xác nhận mật khẩu', () => {
+        const testName = 'Mật khẩu không khớp với xác nhận mật khẩu';
+        console.log(`Test: ${testName}`);
         document.getElementById('fullname').value = 'John Doe';
         document.getElementById('phone').value = '1234567890';
         document.getElementById('password').value = 'password123';
         document.getElementById('password_confirmation').value = 'wrongpassword';
         signupButton.click();
+
+        console.log('Đang kiểm tra: Thông báo lỗi cho mật khẩu không khớp');
         expect(document.querySelector('.form-message-password-confi').innerHTML).toBe('Mật khẩu không khớp');
     });
 
-    test('Account already exists', () => {
+    test('Tài khoản đã tồn tại', () => {
+        const testName = 'Tài khoản đã tồn tại';
+        console.log(`Test: ${testName}`);
         localStorage.setItem('accounts', JSON.stringify([{ fullname: 'John Doe', phone: '1234567890', password: 'password123' }]));
         document.getElementById('fullname').value = 'Jane Smith';
         document.getElementById('phone').value = '1234567890';
         document.getElementById('password').value = 'password456';
         document.getElementById('password_confirmation').value = 'password456';
-        document.getElementById('checkbox-signup').checked = true; 
+        document.getElementById('checkbox-signup').checked = true;
         signupButton.click();
+
+        console.log('Đang kiểm tra: Thông báo lỗi khi tài khoản đã tồn tại');
         expect(toast).toHaveBeenCalledWith({ title: 'Thất bại', message: 'Tài khoản đã tồn tại !', type: 'error', duration: 30000 });
     });
 
-    test('Successful signup', () => {
+    test('Đăng ký thành công', () => {
+        const testName = 'Đăng ký thành công';
+        console.log(`Test: ${testName}`);
         document.getElementById('fullname').value = 'John Doe';
         document.getElementById('phone').value = '1234567890';
         document.getElementById('password').value = 'password123';
         document.getElementById('password_confirmation').value = 'password123';
         document.getElementById('checkbox-signup').checked = true;
-    
+
         signupButton.click();
-    
+
+        console.log('Đang kiểm tra: Dữ liệu tài khoản đã được lưu vào localStorage');
         const accounts = JSON.parse(localStorage.getItem('accounts'));
-        expect(accounts).not.toBeNull(); // Đảm bảo dữ liệu không null
-        // kiểm tra xem có tài khoản trong account không
+        expect(accounts).not.toBeNull();
+
+        console.log('Đang kiểm tra: Tài khoản mới đã được thêm vào danh sách');
         expect(accounts).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ phone: '1234567890' })
             ])
         );
+
+        console.log('Đang kiểm tra: Thông báo thành công hiển thị đúng');
         expect(toast).toHaveBeenCalledWith({ title: 'Thành công', message: 'Tạo thành công tài khoản !', type: 'success', duration: 30000 });
     });
-});    
+});
