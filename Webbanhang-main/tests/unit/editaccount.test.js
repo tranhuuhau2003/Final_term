@@ -121,7 +121,7 @@ describe('updateAccount', () => {
             { fullname: 'User One', phone: '1234567890', password: 'pass1', status: 1 },
             { fullname: 'User Two', phone: '0987654321', password: 'pass2', status: 0 }
         ]));
-        document.getElementById("updateAccount").click();  // Đảm bảo trình xử lý sự kiện được thiết lập
+        document.getElementById("updateAccount").click();
     });
 
     afterEach(() => {

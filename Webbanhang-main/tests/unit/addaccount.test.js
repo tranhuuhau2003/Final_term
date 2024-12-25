@@ -144,7 +144,6 @@ describe('Sự kiện lắng nghe addAccount', () => {
             expect(phoneMessage).toBe('Vui lòng nhập vào số điện thoại');
             expect(passwordMessage).toBe('Vui lòng nhập mật khẩu');
 
-            // Assert that the form does not submit when fields are empty
             const accounts = localStorage.getItem('accounts');
             console.log('Kiểm tra tài khoản trong localStorage:', accounts);
             expect(accounts).toBeNull();
@@ -168,11 +167,9 @@ describe('Sự kiện lắng nghe addAccount', () => {
         expect(accounts[0].phone).toBe('1234567890');
         expect(accounts[0].password).toBe('password123');
 
-        // Assert that toast shows success message
         console.log('Kiểm tra thông báo toast:', toast.mock.calls[0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Thành công', message: 'Tạo thành công tài khoản !', type: 'success', duration: 3000 });
 
-        // Assert that other functions are called correctly
         expect(showUser).toHaveBeenCalled();
         expect(signUpFormReset).toHaveBeenCalled();
     });
@@ -194,11 +191,9 @@ describe('Sự kiện lắng nghe addAccount', () => {
         expect(accounts.length).toBe(1);  // Vẫn chỉ có một tài khoản
         expect(accounts[0].phone).toBe('0987654321');
 
-        // Assert that toast shows error message for duplicate account
         console.log('Kiểm tra thông báo toast cho tài khoản trùng lặp:', toast.mock.calls[0]);
         expect(toast).toHaveBeenCalledWith({ title: 'Cảnh báo !', message: 'Tài khoản đã tồn tại !', type: 'error', duration: 3000 });
 
-        // Assert that other functions are not called
         expect(showUser).not.toHaveBeenCalled();
         expect(signUpFormReset).not.toHaveBeenCalled();
     });
